@@ -1,0 +1,17 @@
+<UserControl x:Class="TreeDataGridWPF.Controls.TreeDataGrid"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DataGrid x:Name="PART_DataGrid"
+              ItemsSource="{Binding FlatRows, RelativeSource={RelativeSource AncestorType=UserControl}}"
+              AutoGenerateColumns="False"
+              HeadersVisibility="Column"
+              CanUserAddRows="False"
+              CanUserDeleteRows="False"
+              IsReadOnly="False"
+              SelectionMode="Extended"
+              SelectionUnit="FullRow"
+              VirtualizingPanel.IsVirtualizing="True"
+              VirtualizingPanel.VirtualizationMode="Recycling"
+              EnableRowVirtualization="True">
+    </DataGrid>
+</UserControl>

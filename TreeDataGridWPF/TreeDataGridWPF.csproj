@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>TreeDataGridWPF</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Models\TreeNode.cs" />
+    <Compile Include="Data\TreeListDataSource.cs" />
+    <Compile Include="Controls\TreeDataGrid.xaml.cs" />
+    <Compile Include="Converters\DepthToIndentConverter.cs" />
+    <Compile Include="Converters\ChildrenToVisibilityConverter.cs" />
+    <Compile Include="Demo\DemoModels.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Controls\TreeDataGrid.xaml" />
+    <ApplicationDefinition Include="App.xaml" />
+    <Page Include="MainWindow.xaml" />
+  </ItemGroup>
+</Project>
