@@ -1,20 +1,20 @@
 <UserControl x:Class="TreeDataGridWPF.Controls.TreeDataGrid"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:TreeDataGridWPF.Controls">
+             xmlns:local="clr-namespace:TreeDataGridWPF.Controls"
+             xmlns:conv="clr-namespace:TreeDataGridWPF.Converters">
+    <UserControl.Resources>
+        <conv:DepthToIndentConverter x:Key="DepthToIndentConverter"/>
+        <conv:ChildrenToVisibilityConverter x:Key="ChildrenToVisibilityConverter"/>
+    </UserControl.Resources>
+
     <DataGrid x:Name="PART_DataGrid"
-              ItemsSource="{Binding FlatRows, RelativeSource={RelativeSource AncestorType=UserControl}}"
+              ItemsSource="{Binding FlatRows, RelativeSource={RelativeSource AncestorType={x:Type local:TreeDataGrid}}}"
               AutoGenerateColumns="False"
-              HeadersVisibility="Column"
               CanUserAddRows="False"
               CanUserDeleteRows="False"
               IsReadOnly="False"
-              SelectionMode="Extended"
-              SelectionUnit="FullRow"
-              VirtualizingPanel.IsVirtualizing="True"
-              VirtualizingPanel.VirtualizationMode="Recycling"
-              EnableRowVirtualization="True">
-    </DataGrid>
+              HeadersVisibility="All"
+              RowHeaderWidth="0"
+              GridLinesVisibility="None"/>
 </UserControl>

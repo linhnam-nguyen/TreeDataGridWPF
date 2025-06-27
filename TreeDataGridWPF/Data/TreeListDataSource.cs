@@ -32,6 +32,13 @@ namespace TreeDataGridWPF.Data
             }
         }
 
+        private void BuildFlatList()
+        {
+            FlatList.Clear();
+            foreach (var root in Roots)
+                AddNodeAndDescendants(root);
+        }
+
         private void Node_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(TreeNode<T>.IsExpanded))
@@ -52,13 +59,6 @@ namespace TreeDataGridWPF.Data
                     RemoveDescendants(node);
                 }
             }
-        }
-
-        private void BuildFlatList()
-        {
-            FlatList.Clear();
-            foreach (var root in Roots)
-                AddNodeAndDescendants(root);
         }
 
         private void AddNodeAndDescendants(TreeNode<T> node)

@@ -4,22 +4,25 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using TreeDataGridWPF.Models;
 
 namespace TreeDataGridWPF.Controls
 {
-    public partial class TreeDataGrid : UserControl
+    public partial class TreeDataGrid<T> : UserControl
     {
-        public ObservableCollection<object> FlatRows
-        {
-            get { return (ObservableCollection<object>)GetValue(FlatRowsProperty); }
-            set { SetValue(FlatRowsProperty, value); }
-        }
-        public static readonly DependencyProperty FlatRowsProperty =
-            DependencyProperty.Register("FlatRows", typeof(ObservableCollection<object>), typeof(TreeDataGrid), new PropertyMetadata(null));
 
         public TreeDataGrid()
         {
             InitializeComponent();
+        }
+
+        public static readonly DependencyProperty FlatRowsProperty =
+            DependencyProperty.Register("FlatRows", typeof(ObservableCollection<TreeNode<T>>), typeof(TreeDataGrid<T>), new PropertyMetadata(null));
+
+        public ObservableCollection<object> FlatRows
+        {
+            get { return (ObservableCollection<object>)GetValue(FlatRowsProperty); }
+            set { SetValue(FlatRowsProperty, value); }
         }
 
         public void Build<T>(Data.TreeListDataSource<T> dataSource, params PropertyInfo[] columns)
