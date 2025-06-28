@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using TreeDataGridWPF.Models;
 using System.Xml.Linq;
+using System.Linq;
 
 namespace TreeDataGridWPF.Data
 {
@@ -28,8 +29,6 @@ namespace TreeDataGridWPF.Data
             foreach (var node in nodes)
             {
                 node.PropertyChanged += Node_PropertyChanged;
-                if (node.Children.Count > 0)
-                    HookEvents(node.Children);
             }
         }
 
@@ -52,8 +51,9 @@ namespace TreeDataGridWPF.Data
                     {
                         foreach (var child in _childrenSelector(node.Model) ?? Array.Empty<T>())
                         {
-                            node.Children.Add(new TreeNode<T>(child, node.Depth + 1));
+                            node.Children.Add(new TreeNode<T>(child, node.Depth + 1));                           
                         }
+                        HookEvents(node.Children);
                     }
                     InsertDescendants(idx, node.Children);
                 }
@@ -82,8 +82,8 @@ namespace TreeDataGridWPF.Data
             {
                 child.HasDummyChild = true;
                 FlatList.Insert(insertAt++, child);
-                if (child.IsExpanded && child.Children.Count > 0)
-                    InsertDescendants(FlatList.IndexOf(child), child.Children);
+                //if (child.IsExpanded && child.Children.Count > 0)
+                //    InsertDescendants(FlatList.IndexOf(child), child.Children);
             }
         }
 
