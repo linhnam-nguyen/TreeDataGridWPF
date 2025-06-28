@@ -11,7 +11,7 @@ namespace TreeDataGridWPF
             InitializeComponent();
             var data = DemoModels.BuildSampleData();
             var ds = new TreeListDataSource<DemoItem>(data, x => x.Children);
-            MyTreeGrid.Build(ds, typeof(DemoItem).GetProperty("Name"), typeof(DemoItem).GetProperty("Value"));
+            DemoTreeGrid.Build(ds, typeof(DemoItem).GetProperty("Name"), typeof(DemoItem).GetProperty("Value"));
         }
     }
 }

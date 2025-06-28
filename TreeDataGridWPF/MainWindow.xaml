@@ -4,6 +4,6 @@
         xmlns:controls="clr-namespace:TreeDataGridWPF.Controls"
         Title="TreeDataGridWPF Demo" Height="450" Width="800">
     <Grid>
-        <controls:TreeDataGrid x:Name="MyTreeGrid" />
+        <controls:TreeDataGrid x:Name="DemoTreeGrid" />
     </Grid>
 </Window>
