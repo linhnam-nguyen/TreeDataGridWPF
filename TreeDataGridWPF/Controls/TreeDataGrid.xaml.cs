@@ -132,32 +132,13 @@ namespace TreeDataGridWPF.Controls
                 "      ClickMode = 'Press'" +
                 "      Focusable='True' " +
                 "      Content='{Binding IsExpanded, Converter={StaticResource IsExpandedToGlyphConverter}}' " +
-                "      Visibility='{Binding HasDummyChild, Converter={StaticResource ChildrenToVisibilityConverter}}' " +
+                "      Visibility='{Binding HasDummyChild, Converter={StaticResource ChildrenToVisibilityConverter}, UpdateSourceTrigger=PropertyChanged}' " +
                 "      Width='14' Height='14' Padding='-8' />" +
                 "    <TextBlock Text='{Binding Model." + prop.Name + "}' VerticalAlignment='Center' Margin='5,0,0,0' />" +
                 "  </StackPanel>" +
                 "</DataTemplate>";
-            try
-            {
-                return (DataTemplate)System.Windows.Markup.XamlReader.Parse(xaml);
-            }
-            catch
-            {
-                // If StaticResource lookup fails, fall back to plain visible toggle for debugging:
-                string fallback =
-                    "<DataTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' " +
-                                 "xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'>" +
-                    "  <StackPanel Orientation='Horizontal'>" +
-                    "    <ToggleButton " +
-                    "      Margin='0,0,0,0' " +
-                    "      IsChecked='{Binding IsExpanded, Mode=TwoWay}' " +
-                    "      Visibility='Visible' " +
-                    "      Width='14' Height='14' Padding='0' />" +
-                    "    <TextBlock Text='{Binding Model." + prop.Name + "}' VerticalAlignment='Center' Margin='2,0,0,0' />" +
-                    "  </StackPanel>" +
-                    "</DataTemplate>";
-                return (DataTemplate)System.Windows.Markup.XamlReader.Parse(fallback);
-            }
+
+             return (DataTemplate)System.Windows.Markup.XamlReader.Parse(xaml);
         }
     }
 }

@@ -55,6 +55,7 @@ namespace TreeDataGridWPF.Data
                         }
                         HookEvents(node.Children);
                     }
+                    if (node.Children.Count == 0)  node.HasDummyChild = false;
                     InsertDescendants(idx, node.Children);
                 }
                 else
@@ -66,7 +67,6 @@ namespace TreeDataGridWPF.Data
 
         private void AddNodeAndDescendants(TreeNode<T> node)
         {
-            node.HasDummyChild = true;
             FlatList.Add(node);
             if (node.IsExpanded && node.Children.Count > 0)
                 foreach (var child in node.Children)
@@ -76,11 +76,9 @@ namespace TreeDataGridWPF.Data
         private void InsertDescendants(int parentIndex, ObservableCollection<TreeNode<T>> children)
         {
             int insertAt = parentIndex + 1;
-            if (children.Count == 0) FlatList[parentIndex].HasDummyChild = false;
 
             foreach (var child in children)
             {
-                child.HasDummyChild = true;
                 FlatList.Insert(insertAt++, child);
                 if (child.IsExpanded && child.Children.Count > 0)
                     InsertDescendants(FlatList.IndexOf(child), child.Children);

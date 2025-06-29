@@ -8,7 +8,13 @@ namespace TreeDataGridWPF.Models
         public T Model { get; }
         public int Depth { get; }
         public ObservableCollection<TreeNode<T>> Children { get; }
-        public bool HasDummyChild { get; set; }
+
+        private bool _hasDummyChild = true;
+        public bool HasDummyChild
+        {
+            get => _hasDummyChild;
+            set { _hasDummyChild = value; OnPropertyChanged(nameof(HasDummyChild)); }
+        }
 
         private bool _isExpanded;
         public bool IsExpanded
