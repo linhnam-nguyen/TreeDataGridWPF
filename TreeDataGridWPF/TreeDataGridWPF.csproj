@@ -5,16 +5,4 @@
 		<UseWPF>true</UseWPF>
 		<RootNamespace>TreeDataGridWPF</RootNamespace>
 	</PropertyGroup>
-	<ItemGroup>
-		<Compile Include="Models\\TreeNode.cs" />
-		<Compile Include="Data\\TreeListDataSource.cs" />
-		<Compile Include="Controls\\TreeDataGrid.xaml.cs" />
-		<Compile Include="Converters\\DepthToIndentConverter.cs" />
-		<Compile Include="Converters\\ChildrenToVisibilityConverter.cs" />
-		<Compile Include="Demo\\DemoModels.cs" />
-	</ItemGroup>
-	<!-- Remove all <Page Include=.../> entries! -->
-	<!--<ItemGroup>
-		<ApplicationDefinition Include="App.xaml" />
-	</ItemGroup>-->
 </Project>
