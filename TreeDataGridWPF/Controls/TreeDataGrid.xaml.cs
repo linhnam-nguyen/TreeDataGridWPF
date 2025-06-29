@@ -59,7 +59,7 @@ namespace TreeDataGridWPF.Controls
             }
         }
 
-        private DataTemplate BuildExpanderCellTemplate<T>(PropertyInfo prop)
+        private DataTemplate BuildExpanderCellTemplate2<T>(PropertyInfo prop)
         {
             // Create a DataTemplate in C#
             var template = new DataTemplate(typeof(TreeNode<T>));
@@ -79,10 +79,17 @@ namespace TreeDataGridWPF.Controls
             toggleFactory.SetBinding(ToggleButton.MarginProperty, marginBinding);
 
             // Bind IsChecked to IsExpanded (two-way)
-            var isCheckedBinding = new Binding("IsExpanded") { Mode = BindingMode.TwoWay };
+            var isCheckedBinding = new Binding("IsExpanded") { Mode = BindingMode.TwoWay, UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged };
             toggleFactory.SetBinding(ToggleButton.IsCheckedProperty, isCheckedBinding);
 
-            var contentBinding = new Binding("IsExpanded") { Converter = new IsExpandedToGlyphConverter() };
+            // Set ClickMode to Press (optional, for immediate response)
+            toggleFactory.SetValue(ToggleButton.ClickModeProperty, ClickMode.Press);
+
+            // Make ToggleButton focusable and bind its content to IsExpanded
+            toggleFactory.SetValue(ToggleButton.FocusableProperty, true);
+
+            // Bind Content to IsExpanded using a converter, uodate source trigger = PropertyChanged
+            var contentBinding = new Binding("IsExpanded") { Converter = new IsExpandedToGlyphConverter()};
             toggleFactory.SetBinding(ToggleButton.ContentProperty, contentBinding);
 
             // Optional: Bind Visibility if you want, or leave always visible for debugging
@@ -111,7 +118,7 @@ namespace TreeDataGridWPF.Controls
         /// <summary>
         /// Dynamically creates a DataTemplate for the first (tree/expander) column.
         /// </summary>
-        private DataTemplate BuildExpanderCellTemplate2<T>(PropertyInfo prop)
+        private DataTemplate BuildExpanderCellTemplate<T>(PropertyInfo prop)
         {
             // For simplicity and to avoid converter issues, start with a basic ToggleButton.
             // Later, you can add margin/converters via code, not XAML.
@@ -121,10 +128,13 @@ namespace TreeDataGridWPF.Controls
                 "  <StackPanel Orientation='Horizontal'>" +
                 "    <ToggleButton " +
                 "      Margin='{Binding Depth, Converter={StaticResource DepthToIndentConverter}}' " + // Enable this if your converter works
-                "      IsChecked='{Binding IsExpanded, Mode=TwoWay}' " +
+                "      IsChecked='{Binding IsExpanded, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}' " +
+                "      ClickMode = 'Press'" +
+                "      Focusable='True' " +
+                "      Content='{Binding IsExpanded, Converter={StaticResource IsExpandedToGlyphConverter}}' " +
                 "      Visibility='{Binding HasDummyChild, Converter={StaticResource ChildrenToVisibilityConverter}}' " +
-                "      Width='14' Height='14' Padding='0' />" +
-                "    <TextBlock Text='{Binding Model." + prop.Name + "}' VerticalAlignment='Center' Margin='2,0,0,0' />" +
+                "      Width='14' Height='14' Padding='-8' />" +
+                "    <TextBlock Text='{Binding Model." + prop.Name + "}' VerticalAlignment='Center' Margin='5,0,0,0' />" +
                 "  </StackPanel>" +
                 "</DataTemplate>";
             try

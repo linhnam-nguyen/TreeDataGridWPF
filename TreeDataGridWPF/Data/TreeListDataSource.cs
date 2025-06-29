@@ -82,8 +82,8 @@ namespace TreeDataGridWPF.Data
             {
                 child.HasDummyChild = true;
                 FlatList.Insert(insertAt++, child);
-                //if (child.IsExpanded && child.Children.Count > 0)
-                //    InsertDescendants(FlatList.IndexOf(child), child.Children);
+                if (child.IsExpanded && child.Children.Count > 0)
+                    InsertDescendants(FlatList.IndexOf(child), child.Children);
             }
         }
 
