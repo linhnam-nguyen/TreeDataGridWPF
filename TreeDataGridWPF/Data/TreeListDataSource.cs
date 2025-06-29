@@ -73,16 +73,19 @@ namespace TreeDataGridWPF.Data
                     AddNodeAndDescendants(child);
         }
 
-        private void InsertDescendants(int parentIndex, ObservableCollection<TreeNode<T>> children)
+        private int InsertDescendants(int parentIndex, ObservableCollection<TreeNode<T>> children)
         {
             int insertAt = parentIndex + 1;
 
             foreach (var child in children)
             {
                 FlatList.Insert(insertAt++, child);
-                if (child.IsExpanded && child.Children.Count > 0)
-                    InsertDescendants(FlatList.IndexOf(child), child.Children);
+                if (child.IsExpanded)
+                {
+                    insertAt = InsertDescendants(FlatList.IndexOf(child), child.Children);
+                }
             }
+            return insertAt;
         }
 
         private void RemoveDescendants(TreeNode<T> node)
