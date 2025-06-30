@@ -34,7 +34,7 @@ namespace TreeDataGridWPF.Controls
             PART_DataGrid.ItemsSource = dataSource.FlatList;
             PART_DataGrid.Columns.Clear();
 
-            // --- First column: Tree Expander + Main Property (e.g., Name) ---
+            // First column: Tree Expander + Main Property 
             var cellStyle = new Style(typeof(DataGridCell));
             cellStyle.Setters.Add(new Setter(DataGridCell.FocusableProperty, false));
 
@@ -48,7 +48,7 @@ namespace TreeDataGridWPF.Controls
 
             PART_DataGrid.Columns.Add(firstColumn);
 
-            // --- Other columns: Show as text, editable if property has public setter ---
+            // Other columns: Show as text, editable if property has public setter
             for (int i = 1; i < columns.Length; ++i)
             {
                 var col = columns[i];
@@ -70,8 +70,6 @@ namespace TreeDataGridWPF.Controls
         /// </summary>
         private DataTemplate BuildExpanderCellTemplate<T>(PropertyInfo prop)
         {
-            // For simplicity and to avoid converter issues, start with a basic ToggleButton.
-            // Later, you can add margin/converters via code, not XAML.
             string xaml =
                 "<DataTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' " +
                              "xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'>" +
