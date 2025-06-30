@@ -13,11 +13,13 @@ namespace TreeDataGridWPF.Data
         public ObservableCollection<TreeNode<T>> Roots { get; }
         public ObservableCollection<TreeNode<T>> FlatList { get; } = new ObservableCollection<TreeNode<T>>();
         private readonly Func<T, IEnumerable<T>> _childrenSelector;
+        private readonly Func<T, T> _sortKeySelector;
 
-        public TreeListDataSource(IEnumerable<T> roots, Func<T, IEnumerable<T>> childrenSelector)
+        public TreeListDataSource(IEnumerable<T> roots, Func<T, IEnumerable<T>> childrenSelector, Func<T, T> sortKeySelector = null)
         {
             Roots = new ObservableCollection<TreeNode<T>>();
             _childrenSelector = childrenSelector;
+            _sortKeySelector = sortKeySelector;
             foreach (var r in roots)
                 Roots.Add(new TreeNode<T>(r, 0));
             BuildFlatList();
@@ -49,7 +51,10 @@ namespace TreeDataGridWPF.Data
                 {
                     if (node.Children.Count == 0)
                     {
-                        foreach (var child in _childrenSelector(node.Model) ?? Array.Empty<T>())
+                        var children = _childrenSelector(node.Model) ?? Array.Empty<T>();
+                        if (_sortKeySelector != null)
+                            children = children.OrderBy(_sortKeySelector);
+                        foreach (var child in children)
                         {
                             node.Children.Add(new TreeNode<T>(child, node.Depth + 1));                           
                         }

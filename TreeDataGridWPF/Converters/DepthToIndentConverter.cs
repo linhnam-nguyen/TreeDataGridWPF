@@ -10,7 +10,7 @@ namespace TreeDataGridWPF.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             int depth = (int)value;
-            return new Thickness(depth * 16, 0, 0, 0);
+            return new Thickness(depth * 8, 0, 0, 0);
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
     }
