@@ -8,7 +8,7 @@ namespace TreeDataGridWPF.Converters
     public class BoolToCollapsedLineConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            => (value as bool? == true) ? Visibility.Visible : Visibility.Collapsed;
+            => (value as bool? == true) ? Visibility.Collapsed : Visibility.Visible;
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
     }

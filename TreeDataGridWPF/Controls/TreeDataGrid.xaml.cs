@@ -19,8 +19,7 @@ namespace TreeDataGridWPF.Controls
             InitializeComponent();
             // Try to apply the Office/TaskPane style if found
             var officeStyle = TryFindResource("OfficeDataGridStyle") as Style;
-            if (officeStyle != null)
-                PART_DataGrid.Style = officeStyle;
+            if (officeStyle != null) PART_DataGrid.Style = officeStyle;
             // Set expander style as column template resource
             PART_DataGrid.Resources["ExpanderToggleStyle"] = TryFindResource("ExpanderToggleStyle") as Style;
             PART_DataGrid.ColumnHeaderHeight = 30;
@@ -83,9 +82,8 @@ namespace TreeDataGridWPF.Controls
                 "      IsChecked='{Binding IsExpanded, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}' " +
                 "      ClickMode = 'Press'" +
                 "      Focusable='True' " +
-                "      Content='{Binding IsExpanded, Converter={StaticResource IsExpandedToGlyphConverter}}' " +
                 "      Visibility='{Binding HasDummyChild, Converter={StaticResource ChildrenToVisibilityConverter}, UpdateSourceTrigger=PropertyChanged}' " +
-                "      Width='14' Height='14' Padding='-8' />" +
+                "      /> " +
                 "    <TextBlock Text='{Binding Model." + prop.Name + "}' VerticalAlignment='Center' Margin='5,0,0,0' />" +
                 "  </StackPanel>" +
                 "</DataTemplate>";

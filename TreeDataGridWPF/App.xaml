@@ -9,8 +9,6 @@
             <converters:DepthToIndentConverter x:Key="DepthToIndentConverter" />
             <converters:ChildrenToVisibilityConverter x:Key="ChildrenToVisibilityConverter" />
             <converters:IsExpandedToGlyphConverter x:Key="IsExpandedToGlyphConverter" />
-            <converters:BoolToCollapsedLineConverter x:Key="BoolToCollapsedLineConverter"/>
-            <converters:BoolToExpandedLineConverter x:Key="BoolToExpandedLineConverter"/>
             <!-- Merge your Office/TaskPane theme -->
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/TreeDataGridWPF;component/Themes/Office.xaml"/>

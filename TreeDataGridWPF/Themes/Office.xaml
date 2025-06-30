@@ -1,6 +1,11 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="clr-namespace:TreeDataGridWPF.Converters">
 
+    <!-- Local value converters -->
+    <converters:BoolToCollapsedLineConverter x:Key="BoolToCollapsedLineConverter"/>
+    <converters:BoolToExpandedLineConverter x:Key="BoolToExpandedLineConverter"/>
+    
     <!-- DataGrid Office/Task Pane Style -->
     <Style TargetType="DataGrid" x:Key="TaskPaneDataGridStyle">
         <Setter Property="Background" Value="#FFF9F9F9"/>
@@ -30,6 +35,7 @@
     <Style TargetType="ToggleButton" x:Key="ExpanderToggleStyle">
         <Setter Property="Width" Value="14"/>
         <Setter Property="Height" Value="14"/>
+        <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
@@ -37,13 +43,41 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ToggleButton">
                     <Grid>
-                        <Path Stroke="#888" StrokeThickness="2"
-                              Data="M 2 5 L 12 5 M 7 2 L 7 12"
+                        <Rectangle Fill="Transparent" Width="14" Height="14"/>
+                        <Path x:Name="ChevronCollapsed"
+                              Data="M 4,3 L 7,7 L 4,11"
+                              Stroke="#AAA"
+                              StrokeThickness="2"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
                               Visibility="{TemplateBinding IsChecked, Converter={StaticResource BoolToCollapsedLineConverter}}"/>
-                        <Path Stroke="#888" StrokeThickness="2"
-                              Data="M 2 7 L 12 7"
-                              Visibility="{TemplateBinding IsChecked, Converter={StaticResource BoolToExpandedLineConverter}}"/>
+                        <Path x:Name="ChevronExpanded"
+                              Data="M 3,4 L 7,7 L 11,4"
+                              Stroke="#AAA"
+                              StrokeThickness="2"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                        Visibility="{TemplateBinding IsChecked, Converter={StaticResource BoolToExpandedLineConverter}}"/>
                     </Grid>
+                    <ControlTemplate.Triggers>
+                        <!-- Optional: Visual feedback -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="ChevronCollapsed" Property="Stroke" Value="#FF40B9FF"/>
+                            <Setter TargetName="ChevronExpanded" Property="Stroke" Value="#FF40B9FF"/>
+                            <Setter TargetName="ChevronCollapsed" Property="StrokeThickness" Value="3"/>
+                            <Setter TargetName="ChevronExpanded" Property="StrokeThickness" Value="3"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="ChevronCollapsed" Property="Stroke" Value="#88C9E8FC"/>
+                            <Setter TargetName="ChevronExpanded" Property="Stroke" Value="#88C9E8FC"/>
+                            <Setter TargetName="ChevronCollapsed" Property="StrokeThickness" Value="2"/>
+                            <Setter TargetName="ChevronExpanded" Property="StrokeThickness" Value="2"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
