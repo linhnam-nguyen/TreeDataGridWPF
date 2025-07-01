@@ -10,7 +10,7 @@
             <converters:ChildrenToVisibilityConverter x:Key="ChildrenToVisibilityConverter" />
             <!-- Merge your Office/TaskPane theme -->
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/TreeDataGridWPF;component/Themes/Office.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/TreeDataGridWPF;component/Themes/DefaultStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
