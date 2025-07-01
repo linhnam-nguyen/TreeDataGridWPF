@@ -13,9 +13,9 @@ namespace TreeDataGridWPF.Data
         public ObservableCollection<TreeNode<T>> Roots { get; }
         public ObservableCollection<TreeNode<T>> FlatList { get; } = new ObservableCollection<TreeNode<T>>();
         private readonly Func<T, IEnumerable<T>> _childrenSelector;
-        private readonly Func<T, T> _sortKeySelector;
+        private readonly Func<T, object> _sortKeySelector;
 
-        public TreeListDataSource(IEnumerable<T> roots, Func<T, IEnumerable<T>> childrenSelector, Func<T, T> sortKeySelector = null)
+        public TreeListDataSource(IEnumerable<T> roots, Func<T, IEnumerable<T>> childrenSelector, Func<T, object> sortKeySelector = null)
         {
             Roots = new ObservableCollection<TreeNode<T>>();
             _childrenSelector = childrenSelector;
