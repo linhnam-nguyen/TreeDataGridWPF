@@ -7,7 +7,7 @@
     <converters:BoolToExpandedLineConverter x:Key="BoolToExpandedLineConverter"/>
     
     <!-- DataGrid Office/Task Pane Style -->
-    <Style TargetType="DataGrid" x:Key="TaskPaneDataGridStyle">
+    <Style TargetType="DataGrid" x:Key="OfficeDataGridStyle">
         <Setter Property="Background" Value="#FFF9F9F9"/>
         <Setter Property="BorderBrush" Value="#FFD7D7D7"/>
         <Setter Property="BorderThickness" Value="1"/>
