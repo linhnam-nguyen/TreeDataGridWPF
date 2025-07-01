@@ -1,14 +1,7 @@
-using System;
-using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using System.Windows.Input;
-using System.Windows.Media;
-using TreeDataGridWPF.Converters;
-using TreeDataGridWPF.Models;
 
 namespace TreeDataGridWPF.Controls
 {
@@ -42,7 +35,7 @@ namespace TreeDataGridWPF.Controls
             {
                 Header = "Properties",
                 Width = new DataGridLength(10, DataGridLengthUnitType.Auto),
-                CellTemplate = BuildExpanderCellTemplate<T>(columns[0]),
+                CellTemplate = ExpanderCellTemplate<T>(columns[0]),
                 CellStyle = cellStyle,
             };
 
@@ -64,30 +57,6 @@ namespace TreeDataGridWPF.Controls
                 };
                 PART_DataGrid.Columns.Add(textCol);
             }
-        }
-
-        /// <summary>
-        /// Dynamically creates a DataTemplate for the first (tree/expander) column.
-        /// </summary>
-        private DataTemplate BuildExpanderCellTemplate<T>(PropertyInfo prop)
-        {
-            string xaml =
-                "<DataTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' " +
-                             "xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'>" +
-                "  <StackPanel Orientation='Horizontal'>" +
-                "    <ToggleButton " +
-                "      Style='{StaticResource ExpanderToggleStyle}' " +
-                "      Margin='{Binding Depth, Converter={StaticResource DepthToIndentConverter}}' " + // Enable this if your converter works
-                "      IsChecked='{Binding IsExpanded, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}' " +
-                "      ClickMode = 'Press'" +
-                "      Focusable='True' " +
-                "      Visibility='{Binding HasDummyChild, Converter={StaticResource ChildrenToVisibilityConverter}, UpdateSourceTrigger=PropertyChanged}' " +
-                "      /> " +
-                "    <TextBlock Text='{Binding Model." + prop.Name + "}' VerticalAlignment='Center' Margin='5,0,0,0' />" +
-                "  </StackPanel>" +
-                "</DataTemplate>";
-
-             return (DataTemplate)System.Windows.Markup.XamlReader.Parse(xaml);
         }
     }
 }
