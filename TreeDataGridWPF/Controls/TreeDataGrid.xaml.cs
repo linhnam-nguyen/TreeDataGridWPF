@@ -43,7 +43,7 @@ namespace TreeDataGridWPF.Controls
                 Header = "Properties",
                 Width = new DataGridLength(10, DataGridLengthUnitType.Auto),
                 CellTemplate = BuildExpanderCellTemplate<T>(columns[0]),
-                CellStyle = cellStyle
+                CellStyle = cellStyle,
             };
 
             PART_DataGrid.Columns.Add(firstColumn);
@@ -59,7 +59,8 @@ namespace TreeDataGridWPF.Controls
                     {
                         Mode = col.CanWrite ? BindingMode.TwoWay : BindingMode.OneWay
                     },
-                    IsReadOnly = !col.CanWrite
+                    IsReadOnly = !col.CanWrite,
+                    CanUserSort = false,
                 };
                 PART_DataGrid.Columns.Add(textCol);
             }
