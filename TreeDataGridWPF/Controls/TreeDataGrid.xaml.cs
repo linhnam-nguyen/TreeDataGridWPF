@@ -11,7 +11,7 @@ namespace TreeDataGridWPF.Controls
         {
             InitializeComponent();
             // Try to apply the Office/TaskPane style if found
-            var officeStyle = TryFindResource("OfficeDataGridStyle") as Style;
+            var officeStyle = TryFindResource("TaskPaneDataGridStyle") as Style;
             if (officeStyle != null) PART_DataGrid.Style = officeStyle;
             // Set expander style as column template resource
             PART_DataGrid.Resources["ExpanderToggleStyle"] = TryFindResource("ExpanderToggleStyle") as Style;
