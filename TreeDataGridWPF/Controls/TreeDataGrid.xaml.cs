@@ -21,7 +21,7 @@ namespace TreeDataGridWPF.Controls
         /// <summary>
         /// Binds the TreeDataGrid to the supplied data source and configures columns.
         /// </summary>
-        public void Build<T>(Data.TreeListDataSource<T> dataSource, params PropertyInfo[] columns)
+        public void Build<T>(TreeEngine.TreeListDataSource<T> dataSource, params PropertyInfo[] columns)
         {
             // FlatList is ObservableCollection<TreeNode<T>>
             PART_DataGrid.ItemsSource = dataSource.FlatList;

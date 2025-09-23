@@ -6,7 +6,7 @@ using TreeDataGridWPF.Models;
 using System.Xml.Linq;
 using System.Linq;
 
-namespace TreeDataGridWPF.Data
+namespace TreeDataGridWPF.TreeEngine
 {
     public class TreeListDataSource<T>
     {
