@@ -40,7 +40,7 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="BorderBrush" Value="#FFD7D7D7"/>
-        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="BorderThickness" Value="0,0,0,0"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Background" Value="{x:Null}"/>
         <Style.Triggers>
@@ -62,13 +62,13 @@
 
     <Style TargetType="TextBox">
         <Setter Property="TextWrapping" Value="NoWrap"/>
-        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontStyle" Value="Normal"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="Padding" Value="4,0,2,0"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="BorderBrush" Value="#FFD7D7D7"/>
+        <Setter Property="BorderBrush" Value="{x:Null}"/>
         <Setter Property="Margin" Value="0"/>
         <Style.Triggers>
             <Trigger Property="IsFocused" Value="True">
@@ -82,13 +82,15 @@
 
     <Style TargetType="CheckBox">
         <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="Margin" Value="0"/>
         <Setter Property="IsThreeState" Value="False"/>
     </Style>
 
     <Style TargetType="ComboBox">
         <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="FontStyle" Value="Normal"/>
         <Setter Property="Padding" Value="2,0,2,0"/>
         <Setter Property="Margin" Value="0,0,0,0"/>
         <Setter Property="MinHeight" Value="18"/>

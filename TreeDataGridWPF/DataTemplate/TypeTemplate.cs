@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Windows;
 
 namespace TreeDataGridWPF.Controls
@@ -13,6 +14,14 @@ namespace TreeDataGridWPF.Controls
         /// </summary>
         public static DataTemplate TypeTemplate(PropertyInfo prop, object value = null)
         {
+            string templateString;
+            string xaml;
+            if (value is string s && Regex.IsMatch(s, @"^\s*<[^>]+>\s*$"))
+            {
+                xaml = TemplateBuilder(TypeTemplate(prop.Name));
+                return (DataTemplate)System.Windows.Markup.XamlReader.Parse(xaml);
+            }
+
             var type = value?.GetType() ?? prop.PropertyType;
             var key = (prop, type);
             if (_cache.TryGetValue(key, out var dt)) return dt;
@@ -24,15 +33,11 @@ namespace TreeDataGridWPF.Controls
                 return dt;
             }
 
-            string templateString = value is not null
+            templateString = value is not null
                 ? TypeTemplate(value as dynamic, prop.Name)
                 : DefaultTemplate(type, prop.Name);
 
-            string xaml =
-                "<DataTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' " +
-                "              xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'>" +
-                    templateString +
-                "</DataTemplate>";
+            xaml = TemplateBuilder(templateString);
 
             dt = (DataTemplate)System.Windows.Markup.XamlReader.Parse(xaml);
             _cache[key] = dt;
@@ -80,5 +85,11 @@ namespace TreeDataGridWPF.Controls
         }
 
         private static readonly Dictionary<(PropertyInfo prop, Type type), DataTemplate> _cache = new();
+
+        private static string TemplateBuilder(string templateString)
+            => "<DataTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' " +
+            "              xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'>" +
+                templateString +
+            "</DataTemplate>";
     }
 }

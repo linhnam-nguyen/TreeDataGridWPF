@@ -1,8 +1,10 @@
+using System.Drawing;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Media;
 
 namespace TreeDataGridWPF.Controls
 {
@@ -30,8 +32,8 @@ namespace TreeDataGridWPF.Controls
 
             // First column: Expander + main property
             var firstCellStyle = new Style(typeof(DataGridCell), baseCellStyle);
-            firstCellStyle.Setters.Add(new Setter(DataGridCell.FontWeightProperty, FontWeights.Bold));
-            firstCellStyle.Setters.Add(new Setter(DataGridCell.FocusableProperty, false));
+            firstCellStyle.Setters.Add(new Setter(FontWeightProperty, FontWeights.SemiBold));
+            firstCellStyle.Setters.Add(new Setter(FocusableProperty, false));
 
             var firstColumn = new DataGridTemplateColumn
             {
@@ -44,7 +46,9 @@ namespace TreeDataGridWPF.Controls
             PART_DataGrid.Columns.Add(firstColumn);
 
             // Other columns: Shown based on value type, editable if property has public setter
-            var cellStyle = (Style)Resources["TreeGridCellStyle"];
+            var objectCellStyle = new Style(typeof(DataGridCell), baseCellStyle);
+            objectCellStyle.Setters.Add(new Setter(FontStyleProperty, FontStyles.Italic));
+            objectCellStyle.Setters.Add(new Setter(TextElement.ForegroundProperty, Brushes.Gray));
             for (int i = 1; i < columns.Length; ++i)
             {
                 var col = columns[i];
@@ -56,7 +60,7 @@ namespace TreeDataGridWPF.Controls
                     CellEditingTemplateSelector = selector,
                     CanUserSort = false,
                     IsReadOnly = !(col.CanWrite && col.SetMethod?.IsPublic == true),
-                    CellStyle = cellStyle                    
+                    CellStyle = objectCellStyle,
                 };
                 PART_DataGrid.Columns.Add(dataCol);
             }
