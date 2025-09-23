@@ -23,9 +23,12 @@
                 <Style TargetType="DataGridColumnHeader">
                     <Setter Property="Background" Value="#FFF3F6FB"/>
                     <Setter Property="FontWeight" Value="SemiBold"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
                     <Setter Property="BorderBrush" Value="#FFD7D7D7"/>
                     <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                    <Setter Property="Padding" Value="6,0,6,0"/>
+                    <Setter Property="FontSize" Value="13"/>
+                    <Setter Property="Padding" Value="0,0,0,0"/>
                 </Style>
             </Setter.Value>
         </Setter>
@@ -42,7 +45,7 @@
         <Setter Property="Background" Value="{x:Null}"/>
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="#FFCCE8FF"/>
+                <Setter Property="Background" Value="#FF5883EA"/>
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -53,8 +56,17 @@
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         <Setter Property="TextWrapping" Value="NoWrap"/>
-        <Setter Property="Margin" Value="0,0,6,0"/>
+        <Setter Property="Padding" Value="6,0,6,0"/>
         <!-- FontFamily/FontSize/Foreground will inherit from DataGrid -->
+    </Style>
+
+    <Style TargetType="TextBox">
+        <Setter Property="TextWrapping" Value="NoWrap"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Padding" Value="4,0,2,0"/>
+        <Setter Property="Background" Value="Transparent"/>
     </Style>
 
     <Style TargetType="CheckBox">
