@@ -1,68 +1,84 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace TreeDataGridWPF.Controls
 {
+
     public partial class TreeDataGrid
     {
-
-
         /// <summary>
         /// Dynamically creates a DataTemplate for the first (tree/expander) column.
         /// </summary>
-
-
-        public DataTemplate TypeTemplate<T>(PropertyInfo prop)
+        public static DataTemplate TypeTemplate(PropertyInfo prop, object value = null)
         {
-            object value = prop.GetValue(default(T), null);
+            var type = value?.GetType() ?? prop.PropertyType;
+            var key = (prop, type);
+            if (_cache.TryGetValue(key, out var dt)) return dt;
+
+            if (type.IsEnum)
+            {
+                dt = EnumTemplate(prop, prop.Name);
+                _cache[key] = dt;
+                return dt;
+            }
+
+            string templateString = value is not null
+                ? TypeTemplate(value as dynamic, prop.Name)
+                : DefaultTemplate(type, prop.Name);
+
             string xaml =
                 "<DataTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' " +
-                             "xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'>" +
-                TypeTemplate<T>(value as dynamic, prop.Name) +
+                "              xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'>" +
+                    templateString +
                 "</DataTemplate>";
-            return (DataTemplate)System.Windows.Markup.XamlReader.Parse(xaml);
+
+            dt = (DataTemplate)System.Windows.Markup.XamlReader.Parse(xaml);
+            _cache[key] = dt;
+            return dt;
         }
 
-        public string TypeTemplate<T>(string value, string name)
+        public static string TypeTemplate(string value, string name)
+            => $"  <TextBox Text='{{Binding Model.{name}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' />";
+
+        public static string TypeTemplate(int value, string name)
+            => $"  <TextBox Text='{{Binding Model.{name}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' />";
+
+        public static string TypeTemplate(double value, string name)
+            => $"  <TextBox Text='{{Binding Model.{name}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' />";
+
+        public static string TypeTemplate(bool value, string name)
+            => $"  <CheckBox IsChecked='{{Binding Model.{name}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' />";
+
+        public static string TypeTemplate(DateTime value, string name)
+            => $"  <DatePicker SelectedDate='{{Binding Model.{name}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' />";
+
+        public static string TypeTemplate(string name) // default read-only
+            => $"  <TextBlock Text='{{Binding Model.{name}, Mode=OneWay}}' />";
+
+
+        // Route nulls by PropertyType so editors are still editable for empty values
+        public static string DefaultTemplate(Type type, string name)
         {
-            return $"  <TextBox Text='{{Binding Model.{name}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' />";
+            if (type == typeof(string)) return TypeTemplate(default(string), name);
+            if (type == typeof(bool) || type == typeof(bool?))
+                return TypeTemplate(default(bool), name);
+
+            if (type == typeof(DateTime) || type == typeof(DateTime?))
+                return TypeTemplate(default(DateTime), name);
+
+            if (type == typeof(int) || type == typeof(int?) ||
+                type == typeof(double) || type == typeof(double?) ||
+                type == typeof(float) || type == typeof(float?) ||
+                type == typeof(decimal) || type == typeof(decimal?) ||
+                type == typeof(long) || type == typeof(long?) ||
+                type == typeof(short) || type == typeof(short?))
+                return TypeTemplate(default(double), name); // any numeric overload (they return TextBox)
+
+            return TypeTemplate(name);
         }
 
-        public string TypeTemplate<T>(int value, string name)
-        {
-            return $"  <TextBox Text='{{Binding Model.{name}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' InputScope='Number' />";
-        }
-
-        public string TypeTemplate<T>(double value, string name)
-        {
-            return $"  <TextBox Text='{{Binding Model.{name}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' InputScope='Number' />";
-        }
-
-        public string TypeTemplate<T>(bool value, string name)
-        {
-            return $"  <CheckBox IsChecked='{{Binding Model.{name}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' />";
-        }
-
-        public string TypeTemplate<T>(DateTime value, string name)
-        {
-            return $"  <DatePicker SelectedDate='{{Binding Model.{name}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' />";
-        }
-
-        public string TypeTemplate<T>(Enum value, string name)
-        {
-            string xaml =
-                $"  <ComboBox ItemsSource='{{Binding Source={{x:Static local:Enum.GetValues({typeof(T).FullName})}}}}' " +
-                $"            SelectedItem='{{Binding Model.{name}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' />";
-            return xaml;
-        }
-
-        public string TypeTemplate<T>(object value, string name)
-        {
-            return $"  <TextBlock Text='{{Binding Model.{name}, Mode=OneWay}}' />";
-        }
+        private static readonly Dictionary<(PropertyInfo prop, Type type), DataTemplate> _cache = new();
     }
 }

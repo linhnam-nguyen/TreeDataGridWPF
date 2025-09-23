@@ -45,17 +45,16 @@ namespace TreeDataGridWPF.Controls
             for (int i = 1; i < columns.Length; ++i)
             {
                 var col = columns[i];
-                var textCol = new DataGridTextColumn
+                var selector = new TreeDataGrid.TemplateSelector<T>(col);
+                var dataCol = new DataGridTemplateColumn
                 {
                     Header = col.Name,
-                    Binding = new Binding($"Model.{col.Name}")
-                    {
-                        Mode = col.CanWrite ? BindingMode.TwoWay : BindingMode.OneWay
-                    },
-                    IsReadOnly = !col.CanWrite,
+                    CellTemplateSelector = selector,
+                    CellEditingTemplateSelector = selector,
                     CanUserSort = false,
+                    IsReadOnly = !(col.CanWrite && col.SetMethod?.IsPublic == true)
                 };
-                PART_DataGrid.Columns.Add(textCol);
+                PART_DataGrid.Columns.Add(dataCol);
             }
         }
     }
