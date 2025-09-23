@@ -5,9 +5,10 @@ namespace TreeDataGridWPF.Demo
     public class DemoItem
     {
         public string Name { get; set; }
-        public int Value { get; set; }
+        public object Value { get; set; }
         public ObservableCollection<DemoItem> Children { get; set; }
     }
+    public enum Role { Intern, Engineer, Lead, Manager, Director }
 
     public static class DemoModels
     {
@@ -22,12 +23,12 @@ namespace TreeDataGridWPF.Demo
                     {
                         new DemoItem
                         {
-                            Name = "Child1", Value = 2,
+                            Name = "Child1", Value = Role.Director,
                             Children = new ObservableCollection<DemoItem>
                             {
                                 new DemoItem
                                 {
-                                    Name = "Grandchild1", Value = 3,
+                                    Name = "Grandchild1", Value = (bool) true,
                                     Children = new ObservableCollection<DemoItem>
                                     {
                                         new DemoItem { Name = "GreatGrandchild1", Value = 4, Children = new ObservableCollection<DemoItem>() }

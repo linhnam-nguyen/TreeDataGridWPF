@@ -19,7 +19,7 @@ namespace TreeDataGridWPF.Controls
 
             if (type.IsEnum)
             {
-                dt = EnumTemplate(prop, prop.Name);
+                dt = EnumTemplate(prop, value);
                 _cache[key] = dt;
                 return dt;
             }
