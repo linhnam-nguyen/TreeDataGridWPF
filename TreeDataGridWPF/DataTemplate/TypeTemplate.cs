@@ -16,13 +16,15 @@ namespace TreeDataGridWPF.Controls
         {
             string templateString;
             string xaml;
-            if (value is string s && Regex.IsMatch(s, @"^\s*<[^>]+>\s*$"))
+
+            var type = value?.GetType() ?? prop.PropertyType;
+
+            if (value is not IFormattable)
             {
                 xaml = TemplateBuilder(TypeTemplate(prop.Name));
                 return (DataTemplate)System.Windows.Markup.XamlReader.Parse(xaml);
             }
 
-            var type = value?.GetType() ?? prop.PropertyType;
             var key = (prop, type);
             if (_cache.TryGetValue(key, out var dt)) return dt;
 
@@ -33,9 +35,19 @@ namespace TreeDataGridWPF.Controls
                 return dt;
             }
 
-            templateString = value is not null
-                ? TypeTemplate(value as dynamic, prop.Name)
-                : DefaultTemplate(type, prop.Name);
+            if (value is not null)
+            {
+                try
+                {
+                    templateString = TypeTemplate((dynamic)value, prop.Name);
+                }
+                catch
+                {
+                    templateString = DefaultTemplate(type, prop.Name);
+                }
+            }
+            else
+                templateString = DefaultTemplate(type, prop.Name);
 
             xaml = TemplateBuilder(templateString);
 

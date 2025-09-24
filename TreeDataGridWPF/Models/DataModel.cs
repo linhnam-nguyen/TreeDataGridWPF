@@ -2,200 +2,225 @@ using System;
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 
 namespace TreeDataGridWPF.Models
 {
-    public class DataModel
+    public class DataModel : INotifyPropertyChanged
     {
-        public string Name { get; set; }
-        public object Value { get; set; }
-        public ObservableCollection<DataModel> Children { get; set; }
+        public string Name { get; init; }
 
-        /// <summary>
-        /// Entry point: parse any object into a tree of DataModel.
-        /// - If data is an ObservableCollection<DataModel>, it is returned as-is.
-        /// - Otherwise, the returned collection contains a single root node named from the type or "Root".
-        /// </summary>
+        // The secret sauce: we don't store data; we store HOW to reach it.
+        public IAccessor Accessor { get; init; }
+
+        // Bind your editable column to Value (TwoWay)
+        public object Value
+        {
+            get => Accessor?.Get();
+            set
+            {
+                if (Accessor?.CanWrite == true)
+                {
+                    Accessor.Set(value);
+                    OnPropertyChanged(nameof(Value));
+                }
+            }
+        }
+
+        public ObservableCollection<DataModel> Children { get; private set; } = new();
+
+        // Optional display helper for complex nodes
+        public string Display
+        {
+            get
+            {
+                var v = Value;
+                if (IsLeaf(v)) return v?.ToString() ?? "<null>";
+                return $"<{v?.GetType().Name ?? "null"}>";
+            }
+        }
+
+        // ------------ Parse (no copy) ------------
+
         public static ObservableCollection<DataModel> ParseData(object data)
         {
             if (data is ObservableCollection<DataModel> already)
                 return already;
 
             var visited = new HashSet<object>(ReferenceEqualityComparer.Instance);
-            var rootName = MakeRootName(data);
-            var root = BuildNode(rootName, data, visited);
+            var root = ForConstant(MakeRootName(data), data);
+            root.Children = BuildChildren(data, visited);
             return new ObservableCollection<DataModel> { root };
         }
 
-        // ---------- Internals ----------
-
-        private static DataModel BuildNode(string name, object obj, HashSet<object> visited)
-        {
-            // Leaf or null => no children
-            if (IsLeaf(obj))
-            {
-                return new DataModel
-                {
-                    Name = name,
-                    Value = obj,
-                    Children = new ObservableCollection<DataModel>()
-                };
-            }
-
-            // Cycle guard (reference types only)
-            if (obj != null && !IsValueTypeOrString(obj.GetType()))
-            {
-                if (!visited.Add(obj))
-                {
-                    return new DataModel
-                    {
-                        Name = name,
-                        Value = $"<circular reference: {obj.GetType().Name}>",
-                        Children = new ObservableCollection<DataModel>()
-                    };
-                }
-            }
-
-            // Expand children
-            var children = BuildChildren(obj, visited);
-
-            return new DataModel
-            {
-                Name = name,
-                Value = GetDisplayValueOrType(obj),
-                Children = children
-            };
-        }
+        private static DataModel ForConstant(string name, object value) =>
+            new DataModel { Name = name, Accessor = new ConstantAccessor(value) };
 
         private static ObservableCollection<DataModel> BuildChildren(object obj, HashSet<object> visited)
         {
             var result = new ObservableCollection<DataModel>();
             if (obj == null) return result;
 
-            // IDictionary (non-generic or generic)
+            var t = obj.GetType();
+            if (!IsValueTypeOrString(t))
+            {
+                if (!visited.Add(obj)) return result; // cycle guard
+            }
+
+            // IDictionary
             if (obj is IDictionary dict)
             {
-                foreach (DictionaryEntry entry in dict)
+                var valueType = TryGetDictionaryValueType(dict.GetType());
+                foreach (DictionaryEntry e in dict)
                 {
-                    var childName = $"[{SafeKey(entry.Key)}]";
-                    result.Add(BuildNode(childName, entry.Value, visited));
+                    var name = $"[{SafeKey(e.Key)}]";
+                    var dm = new DataModel
+                    {
+                        Name = name,
+                        Accessor = new DictionaryEntryAccessor(dict, e.Key, valueType)
+                    };
+                    AttachChildrenIfComplex(dm, visited);
+                    result.Add(dm);
                 }
                 return result;
             }
 
-            // IEnumerable<KeyValuePair<,>> (e.g., Dictionary<,> surfaced as IEnumerable)
-            var kvpIface = obj.GetType().GetInterfaces()
-                .FirstOrDefault(t => t.IsGenericType &&
-                                     t.GetGenericTypeDefinition() == typeof(IEnumerable<>) &&
-                                     t.GetGenericArguments()[0].IsGenericType &&
-                                     t.GetGenericArguments()[0].GetGenericTypeDefinition() == typeof(KeyValuePair<,>));
-            if (kvpIface != null)
+            // IList (settable items)
+            if (obj is IList list)
             {
-                foreach (var kv in (IEnumerable)obj)
+                var itemType = TryGetListItemType(list.GetType());
+                for (int i = 0; i < list.Count; i++)
                 {
-                    var keyProp = kv.GetType().GetProperty("Key");
-                    var valProp = kv.GetType().GetProperty("Value");
-                    var key = keyProp?.GetValue(kv, null);
-                    var val = valProp?.GetValue(kv, null);
-                    var childName = $"[{SafeKey(key)}]";
-                    result.Add(BuildNode(childName, val, visited));
+                    var dm = new DataModel
+                    {
+                        Name = $"[{i}]",
+                        Accessor = new ListItemAccessor(list, i, itemType)
+                    };
+                    AttachChildrenIfComplex(dm, visited);
+                    result.Add(dm);
                 }
                 return result;
             }
 
-            // IEnumerable (but not string)
+            // IEnumerable (read-only sequence) — materialize as constants
             if (obj is IEnumerable seq && obj is not string)
             {
-                int i = 0;
+                int j = 0;
                 foreach (var item in seq)
                 {
-                    var childName = $"[{i}]";
-                    result.Add(BuildNode(childName, item, visited));
-                    i++;
+                    var dm = ForConstant($"[{j}]", item);
+                    AttachChildrenIfComplex(dm, visited);
+                    result.Add(dm);
+                    j++;
                 }
                 return result;
             }
 
-            // Plain object: expand readable public instance properties (skip indexers)
-            var props = obj.GetType()
-                           .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                           .Where(p => p.CanRead && p.GetIndexParameters().Length == 0);
-
-            foreach (var p in props)
+            // Plain object: properties (and public fields)
+            foreach (var p in t.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                               .Where(p => p.CanRead && p.GetIndexParameters().Length == 0))
             {
-                object value;
+                DataModel dm;
                 try
                 {
-                    value = p.GetValue(obj, null);
+                    dm = new DataModel
+                    {
+                        Name = p.Name,
+                        Accessor = new PropertyAccessor(obj, p)
+                    };
                 }
                 catch
                 {
-                    value = "<unreadable>";
+                    dm = ForConstant(p.Name, "<unreadable>");
                 }
+                AttachChildrenIfComplex(dm, visited);
+                result.Add(dm);
+            }
 
-                result.Add(BuildNode(p.Name, value, visited));
+            foreach (var f in t.GetFields(BindingFlags.Public | BindingFlags.Instance))
+            {
+                var dm = new DataModel
+                {
+                    Name = f.Name,
+                    Accessor = new FieldAccessor(obj, f)
+                };
+                AttachChildrenIfComplex(dm, visited);
+                result.Add(dm);
             }
 
             return result;
         }
 
+        private static void AttachChildrenIfComplex(DataModel node, HashSet<object> visited)
+        {
+            var val = node.Value;
+            if (!IsLeaf(val)) node.Children = BuildChildren(val, visited);
+            else node.Children = new ObservableCollection<DataModel>();
+        }
+
+        // ------------ Helpers ------------
+
         private static bool IsLeaf(object obj)
         {
             if (obj == null) return true;
             var t = obj.GetType();
+            if (t.IsEnum || IsSimple(t)) return true;
 
-            if (t.IsEnum) return true;
-            if (IsSimple(t)) return true;               // primitives, decimal, string, DateTime, etc.
-
-            // Treat nullable<T> of simple as leaf
-            if (Nullable.GetUnderlyingType(t) is Type nt && IsSimple(nt))
-                return true;
-
-            return false;
+            var nt = Nullable.GetUnderlyingType(t);
+            return nt != null && IsSimple(nt);
         }
 
-        private static bool IsSimple(Type t)
-        {
-            if (t.IsPrimitive) return true;
-            if (t == typeof(string) ||
-                t == typeof(decimal) ||
-                t == typeof(DateTime) ||
-                t == typeof(DateOnly) ||
-                t == typeof(TimeOnly) ||
-                t == typeof(TimeSpan) ||
-                t == typeof(Guid))
-                return true;
-            return false;
-        }
+        private static bool IsSimple(Type t) =>
+            t.IsPrimitive ||
+            t == typeof(string) ||
+            t == typeof(decimal) ||
+            t == typeof(DateTime) ||
+#if NET6_0_OR_GREATER
+            t == typeof(DateOnly) || t == typeof(TimeOnly) ||
+#endif
+            t == typeof(TimeSpan) ||
+            t == typeof(Guid);
 
-        private static bool IsValueTypeOrString(Type t)
-            => t.IsValueType || t == typeof(string);
-
-        private static string GetDisplayValueOrType(object obj)
-        {
-            if (obj == null) return "<null>";
-            // For non-leaf complex objects, show type name; for leaf, show actual value
-            return IsLeaf(obj) ? obj.ToString() : $"<{obj.GetType().Name}>";
-        }
-
-        private static string SafeKey(object key)
-            => key == null ? "null" : key.ToString();
+        private static bool IsValueTypeOrString(Type t) => t.IsValueType || t == typeof(string);
+        private static string SafeKey(object key) => key == null ? "null" : key.ToString();
 
         private static string MakeRootName(object data)
         {
             if (data == null) return "Root (null)";
-            if (data is IEnumerable && data is not string) return $"{data.GetType().Name}";
+            if (data is IEnumerable && data is not string) return data.GetType().Name;
             return data.GetType().Name;
         }
 
-        // Reference equality comparer to detect cycles
+        private static Type TryGetListItemType(Type listType) =>
+            listType.IsGenericType ? listType.GetGenericArguments().FirstOrDefault() : null;
+
+        private static Type TryGetDictionaryValueType(Type dictType) =>
+            dictType.IsGenericType && dictType.GetGenericArguments().Length == 2
+                ? dictType.GetGenericArguments()[1]
+                : null;
+
+        // reference equality comparer for cycle detection
         private sealed class ReferenceEqualityComparer : IEqualityComparer<object>
         {
-            public static readonly ReferenceEqualityComparer Instance = new ReferenceEqualityComparer();
+            public static readonly ReferenceEqualityComparer Instance = new();
             public new bool Equals(object x, object y) => ReferenceEquals(x, y);
             public int GetHashCode(object obj) => System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(obj);
         }
+
+        // constant (read-only) nodes
+        private sealed class ConstantAccessor : IAccessor
+        {
+            private readonly object _value;
+            public ConstantAccessor(object value) { _value = value; }
+            public object Get() => _value;
+            public void Set(object value) { /* no-op */ }
+            public bool CanWrite => false;
+            public object Owner => null;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }
