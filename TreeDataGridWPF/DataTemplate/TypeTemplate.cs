@@ -10,7 +10,7 @@ namespace TreeDataGridWPF.Controls
     public partial class TreeDataGrid
     {
         /// <summary>
-        /// Dynamically creates a DataTemplate for the first (tree/expander) column.
+        /// Dynamically creates a DataTemplate for the (tree/expander) columns.
         /// </summary>
         public static DataTemplate TypeTemplate(PropertyInfo prop, object value = null)
         {
@@ -65,10 +65,9 @@ namespace TreeDataGridWPF.Controls
         public static string TypeTemplate(DateTime value, string name)
             => $"  <DatePicker SelectedDate='{{Binding Model.{name}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' />";
 
-        public static string TypeTemplate(string name) // default read-only
-            => $@"<TextBlock Text='{{Binding {name}, Mode=OneWay, Converter={{conv:DisplayNameConverter}}}}' />";
+        public static string TypeTemplate(string name)
+            => $@"<TextBlock Text='{{Binding Model.{name}, Mode=OneWay, Converter={{StaticResource DisplayNameConverter}}}}' />";
 
-        // Route nulls by PropertyType so editors are still editable for empty values
         public static string DefaultTemplate(Type type, string name)
         {
             if (type == typeof(string)) return TypeTemplate(default(string), name);
@@ -94,8 +93,7 @@ namespace TreeDataGridWPF.Controls
         private static string TemplateBuilder(string templateString)
             => "<DataTemplate " +
                "xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' " +
-               "xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml' " +
-               "xmlns:conv='clr-namespace:TreeDataGridWPF.Converters,assembly=TreeDataGridWPF'>" +
+               "xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'> " +
                     templateString +
                "</DataTemplate>";
 

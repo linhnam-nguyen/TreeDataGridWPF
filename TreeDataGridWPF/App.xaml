@@ -8,7 +8,7 @@
             <!-- Local value converters -->
             <converters:DepthToIndentConverter x:Key="DepthToIndentConverter" />
             <converters:ChildrenToVisibilityConverter x:Key="ChildrenToVisibilityConverter" />
-            <converters:DisplayNameConverter x:Key="DisplayNameConverter" />
+            <converters:DisplayNameConverter x:Key="DisplayNameConverter"/>
             <!-- Merge your Office/TaskPane theme -->
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/TreeDataGridWPF;component/Themes/DefaultStyle.xaml"/>
