@@ -162,7 +162,7 @@ namespace TreeDataGridWPF.Models
 
         // ------------ Helpers ------------
 
-        private static bool IsLeaf(object obj)
+        public static bool IsLeaf(object obj)
         {
             if (obj == null) return true;
             var t = obj.GetType();
@@ -172,7 +172,7 @@ namespace TreeDataGridWPF.Models
             return nt != null && IsSimple(nt);
         }
 
-        private static bool IsSimple(Type t) =>
+        public static bool IsSimple(Type t) =>
             t.IsPrimitive ||
             t == typeof(string) ||
             t == typeof(decimal) ||

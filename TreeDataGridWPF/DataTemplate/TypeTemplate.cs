@@ -19,12 +19,6 @@ namespace TreeDataGridWPF.Controls
 
             var type = value?.GetType() ?? prop.PropertyType;
 
-            if (value is not IFormattable)
-            {
-                xaml = TemplateBuilder(TypeTemplate(prop.Name));
-                return (DataTemplate)System.Windows.Markup.XamlReader.Parse(xaml);
-            }
-
             var key = (prop, type);
             if (_cache.TryGetValue(key, out var dt)) return dt;
 
@@ -72,8 +66,7 @@ namespace TreeDataGridWPF.Controls
             => $"  <DatePicker SelectedDate='{{Binding Model.{name}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' />";
 
         public static string TypeTemplate(string name) // default read-only
-            => $"  <TextBlock Text='{{Binding Model.{name}, Mode=OneWay}}' />";
-
+            => $@"<TextBlock Text='{{Binding {name}, Mode=OneWay, Converter={{conv:DisplayNameConverter}}}}' />";
 
         // Route nulls by PropertyType so editors are still editable for empty values
         public static string DefaultTemplate(Type type, string name)
@@ -99,9 +92,12 @@ namespace TreeDataGridWPF.Controls
         private static readonly Dictionary<(PropertyInfo prop, Type type), DataTemplate> _cache = new();
 
         private static string TemplateBuilder(string templateString)
-            => "<DataTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' " +
-            "              xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'>" +
-                templateString +
-            "</DataTemplate>";
+            => "<DataTemplate " +
+               "xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' " +
+               "xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml' " +
+               "xmlns:conv='clr-namespace:TreeDataGridWPF.Converters,assembly=TreeDataGridWPF'>" +
+                    templateString +
+               "</DataTemplate>";
+
     }
 }
