@@ -1,10 +1,9 @@
 using System;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
-using TreeDataGridWPF.Models;
-using System.Xml.Linq;
 using System.Linq;
+using TreeDataGridWPF.Models;
 
 namespace TreeDataGridWPF.TreeEngine
 {

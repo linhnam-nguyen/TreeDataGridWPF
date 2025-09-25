@@ -1,10 +1,6 @@
-using System;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Markup;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace TreeDataGridWPF.Controls
 {

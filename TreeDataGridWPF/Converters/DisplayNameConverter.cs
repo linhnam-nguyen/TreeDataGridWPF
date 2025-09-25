@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections;
-using System.Globalization;
-using System.Linq;
-using System.Windows;
 using System.Windows.Data;
-using System.Windows.Markup;
 using TreeDataGridWPF.Models;
 
 namespace TreeDataGridWPF.Converters
