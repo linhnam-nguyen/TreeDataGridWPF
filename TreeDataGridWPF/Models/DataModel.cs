@@ -31,17 +31,6 @@ namespace TreeDataGridWPF.Models
 
         public ObservableCollection<DataModel> Children { get; private set; } = new();
 
-        // Optional display helper for complex nodes
-        public string Display
-        {
-            get
-            {
-                var v = Value;
-                if (IsLeaf(v)) return v?.ToString() ?? "<null>";
-                return $"<{v?.GetType().Name ?? "null"}>";
-            }
-        }
-
         // ------------ Parse (no copy) ------------
 
         public static ObservableCollection<DataModel> ParseData(object data)
