@@ -173,6 +173,7 @@ namespace TreeDataGridWPF.Models
             t == typeof(Guid);
 
         private static bool IsValueTypeOrString(Type t) => t.IsValueType || t == typeof(string);
+        
         private static string SafeKey(object key) => key == null ? "null" : key.ToString();
 
         private static string MakeRootName(object data)

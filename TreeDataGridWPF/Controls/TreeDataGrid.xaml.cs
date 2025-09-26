@@ -35,7 +35,7 @@ namespace TreeDataGridWPF.Controls
 
             var firstColumn = new DataGridTemplateColumn
             {
-                Header = "Properties",
+                Header = columns[0].Name,
                 Width = new DataGridLength(10, DataGridLengthUnitType.Auto),
                 CellTemplate = ExpanderCellTemplate<T>(columns[0]),
                 CellStyle = firstCellStyle,
