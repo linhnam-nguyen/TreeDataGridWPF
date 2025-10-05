@@ -13,7 +13,7 @@ namespace TreeDataGridWPF.Models
         public string Name { get; init; }
 
         // The secret sauce: we don't store data; we store HOW to reach it.
-        public IAccessor Accessor { get; init; }
+        public IAccessor Accessor { get; init;  }
 
         // Bind your editable column to Value (TwoWay)
         public object Value
@@ -33,7 +33,7 @@ namespace TreeDataGridWPF.Models
 
         // ------------ Parse (no copy) ------------
 
-        public static ObservableCollection<DataModel> ParseData(object data)
+        public static ObservableCollection<DataModel> ParseDataModel(object data)
         {
             if (data is ObservableCollection<DataModel> already)
                 return already;

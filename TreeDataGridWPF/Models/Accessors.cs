@@ -54,6 +54,35 @@ namespace TreeDataGridWPF.Models
         }
     }
 
+    internal sealed class LambdaAccessor : IAccessor
+    {
+        private readonly object _owner;
+        private readonly Func<object, object> _getter;
+        private readonly Action<object, object> _setter;
+
+        public LambdaAccessor(object owner, Func<object, object> getter, Action<object, object> setter = null)
+        {
+            _owner = owner ?? throw new ArgumentNullException(nameof(owner));
+            _getter = getter ?? throw new ArgumentNullException(nameof(getter));
+            _setter = setter; // optional
+        }
+
+        public object Get()
+        {
+            try { return _getter(_owner); }
+            catch { return "<unreadable>"; }
+        }
+
+        public void Set(object value)
+        {
+            if (!CanWrite) return;
+            try { _setter(_owner, value); } catch { /* swallow or log */ }
+        }
+
+        public bool CanWrite => _setter != null;
+        public object Owner => _owner;
+    }
+
     internal sealed class PropertyAccessor : IAccessor
     {
         private readonly object _owner;
