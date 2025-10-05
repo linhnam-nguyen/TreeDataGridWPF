@@ -124,16 +124,16 @@ namespace TreeDataGridWPF.Controls
                 };
 
                 // Optional: visually indicate read-only rows (per-cell) via trigger
-                dataCol.CellStyle = dataCol.CellStyle ?? new Style(typeof(DataGridCell), baseCellStyle);
-                dataCol.CellStyle.Setters.Add(new Setter(TextElement.ForegroundProperty, Brushes.Gray));
-                var roTrigger = new DataTrigger
-                {
-                    Binding = new Binding($"Item.Properties[{i}].Accessor.CanWrite"),
-                    Value = false
-                };
-                roTrigger.Setters.Add(new Setter(TextElement.ForegroundProperty, Brushes.DarkGray));
-                roTrigger.Setters.Add(new Setter(TextElement.FontStyleProperty, FontStyles.Italic));
-                dataCol.CellStyle.Triggers.Add(roTrigger);
+                //dataCol.CellStyle = dataCol.CellStyle ?? new Style(typeof(DataGridCell), baseCellStyle);
+                //dataCol.CellStyle.Setters.Add(new Setter(TextElement.ForegroundProperty, Brushes.Gray));
+                //var roTrigger = new DataTrigger
+                //{
+                //    Binding = new Binding($"Item.Properties[{i}].Accessor.CanWrite"),
+                //    Value = false
+                //};
+                //roTrigger.Setters.Add(new Setter(TextElement.ForegroundProperty, Brushes.DarkGray));
+                //roTrigger.Setters.Add(new Setter(TextElement.FontStyleProperty, FontStyles.Italic));
+                //dataCol.CellStyle.Triggers.Add(roTrigger);
 
                 PART_DataGrid.Columns.Add(dataCol);
             }

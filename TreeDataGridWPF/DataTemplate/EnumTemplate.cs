@@ -2,12 +2,13 @@ using System;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Markup;
+using TreeDataGridWPF.Models;
 
 namespace TreeDataGridWPF.Controls
 {
     public partial class TreeDataGrid
     {
-        public static DataTemplate EnumTemplate(PropertyInfo prop, object value = null)
+        public static DataTemplate EnumTemplate(PropertyInfo prop,int? indexCol = null, object value = null)
         {
             // Handle Nullable<Enum>
             var runtimeType = value?.GetType() ?? prop.PropertyType;
@@ -24,12 +25,15 @@ namespace TreeDataGridWPF.Controls
 
             var enumTypeName = enumType.Name;
 
+            var caller = prop.DeclaringType==typeof(Column) ?
+                nameof(TreeTableModel.Properties) + $"[{indexCol}]." + nameof(Column.Value) :
+                prop.Name;
             var xaml =
               "<DataTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' " +
               "              xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml' " +
               $"              xmlns:enumNs='clr-namespace:{enumNs};assembly={enumAsm}' " +
               $"              xmlns:ext='clr-namespace:{extNs};assembly={extAsm}'> " +
-              $"  <ComboBox SelectedItem='{{Binding Model.{prop.Name}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}'> " +
+              $"  <ComboBox SelectedItem='{{Binding Model.{caller}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}'> " +
               $"      <ComboBox.ItemsSource> " +
               $"          <ext:EnumValues EnumType='{{x:Type enumNs:{enumTypeName}}}' /> " +
               $"      </ComboBox.ItemsSource> " +

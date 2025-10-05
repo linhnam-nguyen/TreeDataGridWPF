@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Windows;
+using TreeDataGridWPF.Models;
 
 namespace TreeDataGridWPF.Controls
 {
@@ -19,12 +20,12 @@ namespace TreeDataGridWPF.Controls
             var type = value?.GetType() ?? prop.PropertyType;
 
             var key = (prop, type);
-            if (_cache.TryGetValue(key, out var dt)) return dt;
+            if (_cacheProp.TryGetValue(key, out var dt)) return dt;
 
             if (type.IsEnum)
             {
-                dt = EnumTemplate(prop, value);
-                _cache[key] = dt;
+                dt = EnumTemplate(prop,null, value);
+                _cacheProp[key] = dt;
                 return dt;
             }
 
@@ -45,9 +46,51 @@ namespace TreeDataGridWPF.Controls
             xaml = TemplateBuilder(templateString);
 
             dt = (DataTemplate)System.Windows.Markup.XamlReader.Parse(xaml);
-            _cache[key] = dt;
+            _cacheProp[key] = dt;
             return dt;
         }
+
+        public static DataTemplate TypeTemplate (PropertyInfo prop, int index, object value = null)
+        {
+            string templateString;
+            string xaml;
+
+            var type = value?.GetType() ?? prop.PropertyType;
+
+            var key = (index,type);
+            if (_cacheTableCol.TryGetValue(key, out var dt)) return dt;
+            if (type.IsEnum)
+            {
+                dt = EnumTemplate(prop, index, value);
+                _cacheTableCol[key] = dt;
+                return dt;
+            }
+            if (value is not null)
+            {
+                try
+                {
+                    templateString = TypeTemplate((dynamic)value, nameof(TreeTableModel.Properties)+$"[{index}]."+nameof(Column.Value));
+                }
+                catch
+                {
+                    templateString = DefaultTemplate(type, nameof(TreeTableModel.Properties) + $"[{index}]." + nameof(Column.Value));
+                }
+            }
+            else
+                templateString = DefaultTemplate(type, nameof(TreeTableModel.Properties) + $"[{index}]." + nameof(Column.Value));
+
+            xaml = TemplateBuilder(templateString);
+            dt = (DataTemplate)System.Windows.Markup.XamlReader.Parse(xaml);
+            _cacheTableCol[key] = dt;
+            return dt;
+        }
+
+        private static string TemplateBuilder(string templateString)
+        => "<DataTemplate " +
+           "xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' " +
+           "xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'> " +
+                templateString +
+           "</DataTemplate>";
 
         public static string TypeTemplate(string value, string name)
             => $"  <TextBox Text='{{Binding Model.{name}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' />";
@@ -87,14 +130,10 @@ namespace TreeDataGridWPF.Controls
             return TypeTemplate(name);
         }
 
-        private static readonly Dictionary<(PropertyInfo prop, Type type), DataTemplate> _cache = new();
+        private static readonly Dictionary<(PropertyInfo prop, Type type), DataTemplate> _cacheProp = new();
+        private static readonly Dictionary<(int colIndex, Type type), DataTemplate> _cacheTableCol = new();
 
-        private static string TemplateBuilder(string templateString)
-            => "<DataTemplate " +
-               "xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' " +
-               "xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'> " +
-                    templateString +
-               "</DataTemplate>";
+
 
     }
 }

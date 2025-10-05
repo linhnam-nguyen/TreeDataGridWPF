@@ -40,7 +40,7 @@ namespace TreeDataGridWPF.Controls
                         if (col != null)
                         {
                             value = col.Value;
-                            return TypeTemplate(_prop, value);
+                            return TypeTemplate(_prop, _propertiesIndex.Value, value);
                         }
                     }
 
