@@ -57,8 +57,13 @@ namespace TreeDataGridWPF.Models
             return result;
         }
 
-        private static TreeTableModel BuildChildren( object obj, Func<object, System.Collections.IEnumerable> childrenSelector, ColumnSpec[] columnSpecs)
+        private static TreeTableModel BuildChildren( object obj, Func<object, System.Collections.IEnumerable> childrenSelector, ColumnSpec[] columnSpecs, HashSet<object>? visited = null)
         {
+            visited ??= new HashSet<object>(ReferenceEqualityComparer.Instance);
+
+            if (obj != null && !visited.Add(obj))
+                return new TreeTableModel { EntityName = obj.GetType().Name + "(loop)"};
+
             var node = new TreeTableModel
             {
                 EntityName = obj?.GetType().Name ?? "<null>",
@@ -76,7 +81,7 @@ namespace TreeDataGridWPF.Models
             {
                 foreach (var child in childrenSelector(obj) ?? Array.Empty<object>())
                 {
-                    node.Children.Add(BuildChildren(child, childrenSelector, columnSpecs));
+                    node.Children.Add(BuildChildren(child, childrenSelector, columnSpecs,visited));
                 }
             }
             return node;
