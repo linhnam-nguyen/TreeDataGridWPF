@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Reflection;
+using System.Linq.Expressions;
 
 namespace TreeDataGridWPF.Models
 {
@@ -99,26 +101,88 @@ namespace TreeDataGridWPF.Models
         public static ColumnSpec ForProperty(string header, string propertyName = null)
             => new(header, owner =>
             {
+                if (owner is null) throw new ArgumentNullException(nameof(owner));
+                var t = owner.GetType();
                 var name = propertyName ?? header;
-                var pi = owner?.GetType().GetProperty(name, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
-                if (pi == null)
-                    throw new InvalidOperationException(
-                        $"Property '{name}' not found on {owner?.GetType().Name ?? "<null>"}.");
-                return new PropertyAccessor(owner, pi);
+                var key = (t, name);
+
+                if (!_getPCache.TryGetValue(key, out var getter))
+                {
+                    var pi = t.GetProperty(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                             ?? throw new InvalidOperationException($"Property '{name}' not found on {t.Name}.");
+
+                    // build Expression<Func<object, object?>>
+                    var pObj = Expression.Parameter(typeof(object), "o");
+                    var cast = Expression.Convert(pObj, t);
+                    var read = Expression.Property(cast, pi);
+                    var box = Expression.Convert(read, typeof(object));
+                    getter = Expression.Lambda<Func<object, object?>>(box, pObj).Compile();
+                    _getPCache[key] = getter;
+
+                    if (pi.CanWrite)
+                    {
+                        var pVal = Expression.Parameter(typeof(object), "v");
+                        var unbox = Expression.Convert(pVal, pi.PropertyType);
+                        var set = Expression.Call(cast, pi.SetMethod!, unbox);
+                        var setter = Expression.Lambda<Action<object, object?>>(set, pObj, pVal).Compile();
+                        _setPCache[key] = setter;
+                    }
+                }
+
+                _setPCache.TryGetValue(key, out var setDel);
+                return new LambdaAccessor(owner, getter, setDel);
             });
 
         public static ColumnSpec ForField(string header, string fieldName = null)
             => new(header, owner =>
             {
+
+                if (owner is null) throw new ArgumentNullException(nameof(owner));
+                var t = owner.GetType();
                 var name = fieldName ?? header;
-                var fi = owner?.GetType().GetField(name, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
-                if (fi == null)
-                    throw new InvalidOperationException(
-                        $"Field '{name}' not found on {owner?.GetType().Name ?? "<null>"}.");
-                return new FieldAccessor(owner, fi);
+                var key = (t, name);
+
+                var getter = _getFCache.GetOrAdd(key, _ =>
+                {
+                    var fi = t.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                             ?? throw new InvalidOperationException($"Field '{name}' not found on {t.Name}.");
+
+                    // (object o) => (object?)((T)o).Field
+                    var pObj = Expression.Parameter(typeof(object), "o");
+                    var cast = Expression.Convert(pObj, t);
+                    var read = Expression.Field(cast, fi);
+                    var box = Expression.Convert(read, typeof(object));
+                    return Expression.Lambda<Func<object, object?>>(box, pObj).Compile();
+                });
+
+                // compile setter only if field is writable and owner is ref type
+                if (!_setFCache.TryGetValue(key, out var setter))
+                {
+                    var fi = t.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!;
+
+                    var canWrite = !(fi.IsInitOnly || fi.IsLiteral) && !t.IsValueType; // avoid boxed struct issue
+                    if (canWrite)
+                    {
+                        var pObj = Expression.Parameter(typeof(object), "o");
+                        var pVal = Expression.Parameter(typeof(object), "v");
+                        var cast = Expression.Convert(pObj, t);
+                        var val = Expression.Convert(pVal, fi.FieldType);
+                        var assign = Expression.Assign(Expression.Field(cast, fi), val);
+                        setter = Expression.Lambda<Action<object, object?>>(assign, pObj, pVal).Compile();
+                        _setFCache[key] = setter;
+                    }
+                }
+
+                return new LambdaAccessor(owner, getter, setter); // setter may be null => read-only
             });
 
         public static ColumnSpec ForLambda(string header, Func<object, object> getter, Action<object, object> setter = null)
             => new(header, owner => new LambdaAccessor(owner, getter, setter));
+
+        static readonly System.Collections.Concurrent.ConcurrentDictionary<(Type, string), Func<object, object?>> _getPCache = new();
+        static readonly System.Collections.Concurrent.ConcurrentDictionary<(Type, string), Action<object, object?>> _setPCache = new();
+        static readonly System.Collections.Concurrent.ConcurrentDictionary<(Type, string), Func<object, object?>> _getFCache = new();
+        static readonly System.Collections.Concurrent.ConcurrentDictionary<(Type, string), Action<object, object?>> _setFCache = new();
     }
+
 }

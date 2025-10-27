@@ -11,11 +11,7 @@ namespace TreeDataGridWPF.Models
     public class DataModel : INotifyPropertyChanged
     {
         public string Name { get; init; }
-
-        // The secret sauce: we don't store data; we store HOW to reach it.
         public IAccessor Accessor { get; init;  }
-
-        // Bind your editable column to Value (TwoWay)
         public object Value
         {
             get => Accessor?.Get();
