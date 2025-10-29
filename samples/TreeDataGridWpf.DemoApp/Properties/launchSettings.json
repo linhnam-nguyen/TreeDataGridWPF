@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "TreeDataGridWpf.DemoApp (Debug)": {
+      "commandName": "Project",
+      "hotReloadEnabled": true
+    },
+    "TreeDataGridWpf.DemoApp (StartWithoutDebugging)": {
+      "commandName": "Project",
+      "hotReloadEnabled": false
+    }
+  }
+}
