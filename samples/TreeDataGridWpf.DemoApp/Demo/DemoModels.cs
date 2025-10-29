@@ -8,19 +8,19 @@ namespace TreeDataGridWPF.Demo
 
     public class Address
     {
-        public string Street { get; set; }
+        public string Street { get; set; } = string.Empty;
         public int ZipCode { get; set; }
     }
 
     public class Employee
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public int Age { get; set; }
         public Role Role { get; set; }
         public bool IsActive { get; set; }
-        public Address HomeAddress { get; set; }
-        public List<string> Skills { get; set; }
-        public Dictionary<string, double> Scores { get; set; }
+        public Address HomeAddress { get; set; } = new();
+        public List<string> Skills { get; set; } = new();
+        public Dictionary<string, double> Scores { get; set; } = new();
         public List<Employee> Reports { get; set; } = new();
 
     }

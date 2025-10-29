@@ -6,15 +6,15 @@ namespace TreeDataGridWPF.Models
 {
     public interface IAccessor
     {
-        object Get();
-        void Set(object value);      // may throw or be a no-op if not writable
+        object? Get();
+        void Set(object? value);      // may throw or be a no-op if not writable
         bool CanWrite { get; }
-        object Owner { get; }
+        object? Owner { get; }
     }
 
     internal static class CoerceHelper
     {
-        public static object Coerce(object value, Type targetType)
+        public static object? Coerce(object? value, Type targetType)
         {
             if (targetType == null) return value;
 
@@ -57,25 +57,25 @@ namespace TreeDataGridWPF.Models
     internal sealed class LambdaAccessor : IAccessor
     {
         private readonly object _owner;
-        private readonly Func<object, object> _getter;
-        private readonly Action<object, object> _setter;
+        private readonly Func<object, object?> _getter;
+        private readonly Action<object, object?>? _setter;
 
-        public LambdaAccessor(object owner, Func<object, object> getter, Action<object, object> setter = null)
+        public LambdaAccessor(object owner, Func<object, object?> getter, Action<object, object?>? setter = null)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _getter = getter ?? throw new ArgumentNullException(nameof(getter));
             _setter = setter; // optional
         }
 
-        public object Get()
+        public object? Get()
         {
             try { return _getter(_owner); }
             catch { return "<unreadable>"; }
         }
 
-        public void Set(object value)
+        public void Set(object? value)
         {
-            if (!CanWrite) return;
+            if (_setter is null) return;
             try { _setter(_owner, value); } catch { /* swallow or log */ }
         }
 
@@ -89,12 +89,12 @@ namespace TreeDataGridWPF.Models
         private readonly PropertyInfo _prop;
 
         public PropertyAccessor(object owner, PropertyInfo prop) { _owner = owner; _prop = prop; }
-        public object Get()
+        public object? Get()
         {
             try { return _prop.GetValue(_owner, null); }
             catch { return "<unreadable>"; }
         }
-        public void Set(object value)
+        public void Set(object? value)
         {
             if (!CanWrite) return;
             var coerced = CoerceHelper.Coerce(value, _prop.PropertyType);
@@ -110,12 +110,12 @@ namespace TreeDataGridWPF.Models
         private readonly FieldInfo _field;
 
         public FieldAccessor(object owner, FieldInfo field) { _owner = owner; _field = field; }
-        public object Get()
+        public object? Get()
         {
             try { return _field.GetValue(_owner); }
             catch { return "<unreadable>"; }
         }
-        public void Set(object value)
+        public void Set(object? value)
         {
             if (!CanWrite) return;
             var coerced = CoerceHelper.Coerce(value, _field.FieldType);
@@ -129,15 +129,15 @@ namespace TreeDataGridWPF.Models
     {
         private readonly IList _list;
         private readonly int _index;
-        private readonly Type _itemType;   // best effort
+        private readonly Type? _itemType;   // best effort
 
-        public ListItemAccessor(IList list, int index, Type itemType = null)
+        public ListItemAccessor(IList list, int index, Type? itemType = null)
         {
             _list = list; _index = index; _itemType = itemType;
         }
-        public object Get() => _index < _list.Count ? _list[_index] : "<out of range>";
+        public object? Get() => _index < _list.Count ? _list[_index] : "<out of range>";
 
-        public void Set(object value)
+        public void Set(object? value)
         {
             if (!CanWrite || _index >= _list.Count) return;
             var targetType = _itemType ?? value?.GetType() ?? typeof(object);
@@ -151,15 +151,15 @@ namespace TreeDataGridWPF.Models
     {
         private readonly IDictionary _dict;
         private readonly object _key;
-        private readonly Type _valueType;  // best effort
+        private readonly Type? _valueType;  // best effort
 
-        public DictionaryEntryAccessor(IDictionary dict, object key, Type valueType = null)
+        public DictionaryEntryAccessor(IDictionary dict, object key, Type? valueType = null)
         {
             _dict = dict; _key = key; _valueType = valueType;
         }
-        public object Get() => _dict.Contains(_key) ? _dict[_key] : "<missing key>";
+        public object? Get() => _dict.Contains(_key) ? _dict[_key] : "<missing key>";
 
-        public void Set(object value)
+        public void Set(object? value)
         {
             if (!CanWrite) return;
             var t = _valueType ?? value?.GetType() ?? typeof(object);

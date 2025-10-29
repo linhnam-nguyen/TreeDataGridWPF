@@ -8,7 +8,7 @@ namespace TreeDataGridWPF.Controls
 {
     public partial class TreeDataGrid
     {
-        public static DataTemplate EnumTemplate(PropertyInfo prop,int? indexCol = null, object value = null)
+        public static DataTemplate EnumTemplate(PropertyInfo prop, int? indexCol = null, object? value = null)
         {
             // Handle Nullable<Enum>
             var runtimeType = value?.GetType() ?? prop.PropertyType;
@@ -25,7 +25,7 @@ namespace TreeDataGridWPF.Controls
 
             var enumTypeName = enumType.Name;
 
-            var caller = prop.DeclaringType==typeof(Column) ?
+            var caller = prop.DeclaringType == typeof(Column) ?
                 nameof(TreeTableModel.Properties) + $"[{indexCol}]." + nameof(Column.Value) :
                 prop.Name;
             var xaml =
@@ -47,7 +47,7 @@ namespace TreeDataGridWPF.Controls
     [MarkupExtensionReturnType(typeof(Array))]
     public class EnumValuesExtension : MarkupExtension
     {
-        public Type EnumType { get; set; }
+        public Type? EnumType { get; set; }
 
         public override object ProvideValue(IServiceProvider serviceProvider)
         {

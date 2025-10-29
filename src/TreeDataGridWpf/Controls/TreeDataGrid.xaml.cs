@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
@@ -27,6 +28,9 @@ namespace TreeDataGridWPF.Controls
         public void Build<T>(TreeEngine.TreeListDataSource<T> dataSource, params PropertyInfo[] columns)
             where T : DataModel
         {
+            if (dataSource is null) throw new ArgumentNullException(nameof(dataSource));
+            if (columns is null || columns.Length == 0) throw new ArgumentException("At least one column must be provided.", nameof(columns));
+
             // FlatList is ObservableCollection<TreeNode<T>>
             PART_DataGrid.ItemsSource = dataSource.FlatList;
             PART_DataGrid.Columns.Clear();
@@ -37,11 +41,12 @@ namespace TreeDataGridWPF.Controls
             firstCellStyle.Setters.Add(new Setter(FontWeightProperty, FontWeights.SemiBold));
             firstCellStyle.Setters.Add(new Setter(FocusableProperty, false));
 
+            var firstProp = columns[0];
             var firstColumn = new DataGridTemplateColumn
             {
-                Header = columns[0].Name,
+                Header = firstProp.Name,
                 Width = new DataGridLength(10, DataGridLengthUnitType.Auto),
-                CellTemplate = ExpanderCellTemplate<T>(columns[0]),
+                CellTemplate = ExpanderCellTemplate<T>(firstProp),
                 CellStyle = firstCellStyle,
             };
 
@@ -71,6 +76,8 @@ namespace TreeDataGridWPF.Controls
         public void Build<T>(TreeEngine.TreeListDataSource<T> dataSource, params ColumnSpec[] propertySet)
             where T : TreeTableModel
         {
+            if (dataSource is null) throw new ArgumentNullException(nameof(dataSource));
+
             // rows
             PART_DataGrid.ItemsSource = dataSource.FlatList;
             PART_DataGrid.Columns.Clear();
@@ -82,7 +89,8 @@ namespace TreeDataGridWPF.Controls
             firstCellStyle.Setters.Add(new Setter(FontWeightProperty, FontWeights.SemiBold));
             firstCellStyle.Setters.Add(new Setter(FocusableProperty, false));
 
-            var nameProp = typeof(TreeTableModel).GetProperty(nameof(TreeTableModel.EntityName));
+            var nameProp = typeof(TreeTableModel).GetProperty(nameof(TreeTableModel.EntityName))
+                           ?? throw new InvalidOperationException("Failed to locate EntityName property on TreeTableModel.");
             var firstColumn = new DataGridTemplateColumn
             {
                 Header = nameof(TreeTableModel.EntityName),
@@ -105,13 +113,15 @@ namespace TreeDataGridWPF.Controls
                                    .Select((c, idx) => new ColumnSpec(c.Header, _ => c.Accessor))
                                    .ToArray();
             }
+            propertySet ??= Array.Empty<ColumnSpec>();
 
             for (int i = 0; i < propertySet.Length; i++)
             {
                 var header = propertySet[i].Header ?? $"Col {i + 1}";
 
-                var col = typeof(Column).GetProperty(nameof(Column.Value));
-                var selector = new TreeDataGrid.TemplateSelector<T>(col,i);
+                var col = typeof(Column).GetProperty(nameof(Column.Value))
+                          ?? throw new InvalidOperationException("Failed to locate Column.Value property.");
+                var selector = new TreeDataGrid.TemplateSelector<T>(col, i);
                 var dataCol = new DataGridTemplateColumn
                 {
                     Header = header,

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
@@ -10,9 +10,9 @@ namespace TreeDataGridWPF.Models
 {
     public class DataModel : INotifyPropertyChanged
     {
-        public string Name { get; init; }
-        public IAccessor Accessor { get; init;  }
-        public object Value
+        public string Name { get; init; } = string.Empty;
+        public IAccessor Accessor { get; init; } = default!;
+        public object? Value
         {
             get => Accessor?.Get();
             set
@@ -29,21 +29,21 @@ namespace TreeDataGridWPF.Models
 
         // ------------ Parse (no copy) ------------
 
-        public static ObservableCollection<DataModel> ParseDataModel(object data)
+        public static ObservableCollection<DataModel> ParseDataModel(object? data)
         {
             if (data is ObservableCollection<DataModel> already)
                 return already;
 
-            var visited = new HashSet<object>(ReferenceEqualityComparer.Instance);
+            var visited = new HashSet<object>(System.Collections.Generic.ReferenceEqualityComparer.Instance);
             var root = ForConstant(MakeRootName(data), data);
             root.Children = BuildChildren(data, visited);
             return new ObservableCollection<DataModel> { root };
         }
 
-        private static DataModel ForConstant(string name, object value) =>
+        private static DataModel ForConstant(string name, object? value) =>
             new DataModel { Name = name, Accessor = new ConstantAccessor(value) };
 
-        private static ObservableCollection<DataModel> BuildChildren(object obj, HashSet<object> visited)
+        private static ObservableCollection<DataModel> BuildChildren(object? obj, HashSet<object> visited)
         {
             var result = new ObservableCollection<DataModel>();
             if (obj == null) return result;
@@ -89,7 +89,7 @@ namespace TreeDataGridWPF.Models
                 return result;
             }
 
-            // IEnumerable (read-only sequence) � materialize as constants
+            // IEnumerable (read-only sequence) — materialize as constants
             if (obj is IEnumerable seq && obj is not string)
             {
                 int j = 0;
@@ -147,7 +147,7 @@ namespace TreeDataGridWPF.Models
 
         // ------------ Helpers ------------
 
-        public static bool IsLeaf(object obj)
+        public static bool IsLeaf(object? obj)
         {
             if (obj == null) return true;
             var t = obj.GetType();
@@ -170,43 +170,36 @@ namespace TreeDataGridWPF.Models
 
         private static bool IsValueTypeOrString(Type t) => t.IsValueType || t == typeof(string);
         
-        private static string SafeKey(object key) => key == null ? "null" : key.ToString();
+        private static string SafeKey(object? key) => key?.ToString() ?? "null";
 
-        private static string MakeRootName(object data)
+        private static string MakeRootName(object? data)
         {
             if (data == null) return "Root (null)";
             if (data is IEnumerable && data is not string) return data.GetType().Name;
             return data.GetType().Name;
         }
 
-        private static Type TryGetListItemType(Type listType) =>
+        private static Type? TryGetListItemType(Type listType) =>
             listType.IsGenericType ? listType.GetGenericArguments().FirstOrDefault() : null;
 
-        private static Type TryGetDictionaryValueType(Type dictType) =>
+        private static Type? TryGetDictionaryValueType(Type dictType) =>
             dictType.IsGenericType && dictType.GetGenericArguments().Length == 2
                 ? dictType.GetGenericArguments()[1]
                 : null;
 
-        // reference equality comparer for cycle detection
-        private sealed class ReferenceEqualityComparer : IEqualityComparer<object>
-        {
-            public static readonly ReferenceEqualityComparer Instance = new();
-            public new bool Equals(object x, object y) => ReferenceEquals(x, y);
-            public int GetHashCode(object obj) => System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(obj);
-        }
-
         // constant (read-only) nodes
         private sealed class ConstantAccessor : IAccessor
         {
-            private readonly object _value;
-            public ConstantAccessor(object value) { _value = value; }
-            public object Get() => _value;
-            public void Set(object value) { /* no-op */ }
+            private readonly object? _value;
+            public ConstantAccessor(object? value) { _value = value; }
+            public object? Get() => _value;
+            public void Set(object? value) { /* no-op */ }
             public bool CanWrite => false;
-            public object Owner => null;
+            public object? Owner => null;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }
+

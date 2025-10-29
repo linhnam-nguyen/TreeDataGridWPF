@@ -18,7 +18,7 @@ namespace TreeDataGridWPF.Models
             Accessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
         }
 
-        public object Value
+        public object? Value
         {
             get => Accessor?.Get();
             set
@@ -31,18 +31,18 @@ namespace TreeDataGridWPF.Models
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
     public class TreeTableModel
     {
-        public string EntityName { get; init; }
+        public string EntityName { get; init; } = string.Empty;
         public List<Column> Properties { get; init; } = new();
         public ObservableCollection<TreeTableModel> Children { get; init; } = new();
 
 
-        public static ObservableCollection<TreeTableModel> ParseTreeTableModel(object data, Func<object, System.Collections.IEnumerable> childrenSelector, params ColumnSpec[] columnSpecs)
+        public static ObservableCollection<TreeTableModel> ParseTreeTableModel(object? data, Func<object, System.Collections.IEnumerable?> childrenSelector, params ColumnSpec[] columnSpecs)
         {
             var result = new ObservableCollection<TreeTableModel>();
             if (data is System.Collections.IEnumerable seq && data is not string)
@@ -57,9 +57,9 @@ namespace TreeDataGridWPF.Models
             return result;
         }
 
-        private static TreeTableModel BuildChildren( object obj, Func<object, System.Collections.IEnumerable> childrenSelector, ColumnSpec[] columnSpecs, HashSet<object>? visited = null)
+        private static TreeTableModel BuildChildren(object? obj, Func<object, System.Collections.IEnumerable?> childrenSelector, ColumnSpec[] columnSpecs, HashSet<object>? visited = null)
         {
-            visited ??= new HashSet<object>(ReferenceEqualityComparer.Instance);
+            visited ??= new HashSet<object>(System.Collections.Generic.ReferenceEqualityComparer.Instance);
 
             if (obj != null && !visited.Add(obj))
                 return new TreeTableModel { EntityName = obj.GetType().Name + "(loop)"};
@@ -72,7 +72,9 @@ namespace TreeDataGridWPF.Models
             // Materialize columns
             foreach (var spec in columnSpecs)
             {
-                var acc = spec.CreateAccessor(obj);
+                var acc = obj != null
+                    ? spec.CreateAccessor(obj)
+                    : new LambdaAccessor(new object(), _ => (object?)null);
                 node.Properties.Add(new Column(spec.Header, acc));
             }
 
@@ -103,7 +105,7 @@ namespace TreeDataGridWPF.Models
 
         // ---------- Helpers ----------
 
-        public static ColumnSpec ForProperty(string header, string propertyName = null)
+        public static ColumnSpec ForProperty(string header, string? propertyName = null)
             => new(header, owner =>
             {
                 if (owner is null) throw new ArgumentNullException(nameof(owner));
@@ -138,7 +140,7 @@ namespace TreeDataGridWPF.Models
                 return new LambdaAccessor(owner, getter, setDel);
             });
 
-        public static ColumnSpec ForField(string header, string fieldName = null)
+        public static ColumnSpec ForField(string header, string? fieldName = null)
             => new(header, owner =>
             {
 
@@ -181,7 +183,7 @@ namespace TreeDataGridWPF.Models
                 return new LambdaAccessor(owner, getter, setter); // setter may be null => read-only
             });
 
-        public static ColumnSpec ForLambda(string header, Func<object, object> getter, Action<object, object> setter = null)
+        public static ColumnSpec ForLambda(string header, Func<object, object?> getter, Action<object, object?>? setter = null)
             => new(header, owner => new LambdaAccessor(owner, getter, setter));
 
         static readonly System.Collections.Concurrent.ConcurrentDictionary<(Type, string), Func<object, object?>> _getPCache = new();

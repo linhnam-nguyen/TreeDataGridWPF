@@ -12,7 +12,7 @@ namespace TreeDataGridWPF.Controls
         /// <summary>
         /// Dynamically creates a DataTemplate for the (tree/expander) columns.
         /// </summary>
-        public static DataTemplate TypeTemplate(PropertyInfo prop, object value = null)
+        public static DataTemplate TypeTemplate(PropertyInfo prop, object? value = null)
         {
             string templateString;
             string xaml;
@@ -24,7 +24,7 @@ namespace TreeDataGridWPF.Controls
 
             if (type.IsEnum)
             {
-                dt = EnumTemplate(prop,null, value);
+                dt = EnumTemplate(prop, null, value);
                 _cacheProp[key] = dt;
                 return dt;
             }
@@ -50,7 +50,7 @@ namespace TreeDataGridWPF.Controls
             return dt;
         }
 
-        public static DataTemplate TypeTemplate (PropertyInfo prop, int index, object value = null)
+        public static DataTemplate TypeTemplate(PropertyInfo prop, int index, object? value = null)
         {
             string templateString;
             string xaml;
@@ -69,7 +69,7 @@ namespace TreeDataGridWPF.Controls
             {
                 try
                 {
-                    templateString = TypeTemplate((dynamic)value, nameof(TreeTableModel.Properties)+$"[{index}]."+nameof(Column.Value));
+                    templateString = TypeTemplate((dynamic)value, nameof(TreeTableModel.Properties) + $"[{index}]." + nameof(Column.Value));
                 }
                 catch
                 {
@@ -92,7 +92,7 @@ namespace TreeDataGridWPF.Controls
                 templateString +
            "</DataTemplate>";
 
-        public static string TypeTemplate(string value, string name)
+        public static string TypeTemplate(string? value, string name)
             => $"  <TextBox Text='{{Binding Model.{name}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' />";
 
         public static string TypeTemplate(int value, string name)

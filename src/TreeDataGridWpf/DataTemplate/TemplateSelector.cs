@@ -13,9 +13,9 @@ namespace TreeDataGridWPF.Controls
         {
             private readonly PropertyInfo _prop;
             private readonly int? _propertiesIndex;   // which Properties[i] to show
-            private readonly string _propertiesHeader;// or lookup by header (optional)
+            private readonly string? _propertiesHeader;// or lookup by header (optional)
 
-            public TemplateSelector(PropertyInfo prop, int? propertiesIndex = null, string propertiesHeader = null)
+            public TemplateSelector(PropertyInfo prop, int? propertiesIndex = null, string? propertiesHeader = null)
             {
                 _prop = prop ?? throw new ArgumentNullException(nameof(prop));
                 _propertiesIndex = propertiesIndex;
@@ -26,13 +26,13 @@ namespace TreeDataGridWPF.Controls
             {
                 if (item is TreeNode<T> node)
                 {
-                    object value;
+                    object? value;
 
                     var isColumnValueProp = _prop.DeclaringType == typeof(Column) && _prop.Name == nameof(Column.Value);
 
                     if (typeof(TreeTableModel).IsAssignableFrom(typeof(T)) && node.Model is TreeTableModel row && isColumnValueProp)
                     {
-                        Column col = null;
+                        Column? col = null;
                         if (_propertiesIndex.HasValue && _propertiesIndex.Value >= 0 && _propertiesIndex.Value < row.Properties.Count)
                             col = row.Properties[_propertiesIndex.Value];
                         else if (!string.IsNullOrEmpty(_propertiesHeader))
@@ -40,7 +40,10 @@ namespace TreeDataGridWPF.Controls
                         if (col != null)
                         {
                             value = col.Value;
-                            return TypeTemplate(_prop, _propertiesIndex.Value, value);
+                            var resolvedIndex = _propertiesIndex ?? row.Properties.IndexOf(col);
+                            if (resolvedIndex >= 0)
+                                return TypeTemplate(_prop, resolvedIndex, value);
+                            return TypeTemplate(_prop, value);
                         }
                     }
 

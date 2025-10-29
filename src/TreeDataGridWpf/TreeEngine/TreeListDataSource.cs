@@ -10,14 +10,14 @@ namespace TreeDataGridWPF.TreeEngine
     public class TreeListDataSource<T>
     {
         public ObservableCollection<TreeNode<T>> Roots { get; }
-        public ObservableCollection<TreeNode<T>> FlatList { get; } = new ObservableCollection<TreeNode<T>>();
+        public ObservableCollection<TreeNode<T>> FlatList { get; } = new();
         private readonly Func<T, IEnumerable<T>> _childrenSelector;
-        private readonly Func<T, object> _sortKeySelector;
+        private readonly Func<T, object>? _sortKeySelector;
 
-        public TreeListDataSource(IEnumerable<T> roots, Func<T, IEnumerable<T>> childrenSelector, Func<T, object> sortKeySelector = null)
+        public TreeListDataSource(IEnumerable<T> roots, Func<T, IEnumerable<T>> childrenSelector, Func<T, object>? sortKeySelector = null)
         {
             Roots = new ObservableCollection<TreeNode<T>>();
-            _childrenSelector = childrenSelector;
+            _childrenSelector = childrenSelector ?? throw new ArgumentNullException(nameof(childrenSelector));
             _sortKeySelector = sortKeySelector;
             foreach (var r in roots)
                 Roots.Add(new TreeNode<T>(r, 0));
@@ -40,11 +40,13 @@ namespace TreeDataGridWPF.TreeEngine
                 AddNodeAndDescendants(root);
         }
 
-        private void Node_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void Node_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
+            if (sender is not TreeNode<T> node)
+                return;
+
             if (e.PropertyName == nameof(TreeNode<T>.IsExpanded))
             {
-                var node = (TreeNode<T>)sender;
                 var idx = FlatList.IndexOf(node);
                 if (node.IsExpanded)
                 {
