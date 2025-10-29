@@ -2,6 +2,13 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:TreeDataGridWPF.Controls">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/TreeDataGridWPF;component/Themes/Generic.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <DataGrid x:Name="PART_DataGrid"
               AutoGenerateColumns="False"
               CanUserAddRows="False"
@@ -10,5 +17,5 @@
               HeadersVisibility="All"
               RowHeaderWidth="0"
               GridLinesVisibility="None"
-              VirtualizingStackPanel.IsVirtualizing="False"/>
+              VirtualizingStackPanel.IsVirtualizing="False" />
 </UserControl>

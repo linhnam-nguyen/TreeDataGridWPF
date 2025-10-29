@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>TreeDataGridWPF</RootNamespace>
+    <AssemblyName>TreeDataGridWPF</AssemblyName>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Authors>TreeDataGridWPF Contributors</Authors>
+    <Company>TreeDataGridWPF</Company>
+    <Description>A reusable WPF TreeDataGrid control with hierarchical rows and editable cells.</Description>
+    <PackageId>TreeDataGridWPF</PackageId>
+    <Version>0.1.0</Version>
+    <PackageTags>wpf;datagrid;treeview;controls</PackageTags>
+    <RepositoryUrl>https://github.com/TreeDataGridWPF/TreeDataGridWPF</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/TreeDataGridWPF/TreeDataGridWPF</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="" Link="README.md" />
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="" Link="LICENSE" />
+  </ItemGroup>
+</Project>

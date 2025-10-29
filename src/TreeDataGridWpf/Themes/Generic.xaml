@@ -3,9 +3,12 @@
                     xmlns:converters="clr-namespace:TreeDataGridWPF.Converters">
 
     <!-- Local value converters -->
-    <converters:BoolToCollapsedLineConverter x:Key="BoolToCollapsedLineConverter"/>
-    <converters:BoolToExpandedLineConverter x:Key="BoolToExpandedLineConverter"/>
-    
+    <converters:DepthToIndentConverter x:Key="DepthToIndentConverter" />
+    <converters:ChildrenToVisibilityConverter x:Key="ChildrenToVisibilityConverter" />
+    <converters:DisplayNameConverter x:Key="DisplayNameConverter" />
+    <converters:BoolToCollapsedLineConverter x:Key="BoolToCollapsedLineConverter" />
+    <converters:BoolToExpandedLineConverter x:Key="BoolToExpandedLineConverter" />
+
     <!-- DataGrid Office/Task Pane Style -->
     <Style TargetType="DataGrid" x:Key="DefaultDataGridStyle">
         <Setter Property="Background" Value="#FFF9F9F9"/>
@@ -127,7 +130,7 @@
                               StrokeEndLineCap="Round"
                               HorizontalAlignment="Center"
                               VerticalAlignment="Center"
-                        Visibility="{TemplateBinding IsChecked, Converter={StaticResource BoolToExpandedLineConverter}}"/>
+                              Visibility="{TemplateBinding IsChecked, Converter={StaticResource BoolToExpandedLineConverter}}"/>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <!-- Optional: Visual feedback -->

@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace TreeDataGridWPF
+namespace TreeDataGridWPF.DemoApp
 {
     public partial class App : Application
     {
